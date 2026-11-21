@@ -80,67 +80,139 @@ import {
                 ))}
               </div>
 
-              <div class="proof__psi" aria-label={`PageSpeed ${entry.domain}`}>
+              <div
+                class="proof__psi"
+                data-psi-card
+                aria-label={`PageSpeed ${entry.domain}`}
+              >
                 <div class="proof__psi-head">
                   <h3 class="proof__psi-title">PageSpeed Insights</h3>
-                  <p class="meta">měřeno · laboratoř</p>
+                  <p class="meta">
+                    lab · {entry.psi.measuredAt} · {entry.psi.source}
+                  </p>
                 </div>
 
-                <ul class="proof__rings" role="list">
-                  {scoreLabels.map((m) => {
-                    const score = entry.scores[m.key];
-                    return (
-                      <li class="proof__ring">
-                        <svg
-                          class="proof__ring-svg"
-                          viewBox="0 0 88 88"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <circle
-                            class="proof__ring-track"
-                            cx="44"
-                            cy="44"
-                            r="36"
-                            fill="none"
-                            stroke-width="4"
-                          />
-                          <circle
-                            class="proof__ring-value"
-                            cx="44"
-                            cy="44"
-                            r="36"
-                            fill="none"
-                            stroke-width="4"
-                            stroke-dasharray={ringPath(score)}
-                            stroke-dashoffset="0"
-                            transform="rotate(-90 44 44)"
-                          />
-                          <text
-                            x="44"
-                            y="48"
-                            text-anchor="middle"
-                            class="proof__ring-score"
-                          >
-                            {score}
-                          </text>
-                        </svg>
-                        <span class="proof__ring-label">{m.label}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div
+                  class="proof__psi-switch"
+                  role="tablist"
+                  aria-label="Strategie měření"
+                >
+                  <button
+                    type="button"
+                    class="proof__psi-tab is-active"
+                    role="tab"
+                    id={`psi-tab-mobile-${entry.id}`}
+                    aria-selected="true"
+                    aria-controls={`psi-panel-mobile-${entry.id}`}
+                    data-psi-tab="mobile"
+                  >
+                    MOBIL
+                  </button>
+                  <button
+                    type="button"
+                    class="proof__psi-tab"
+                    role="tab"
+                    id={`psi-tab-desktop-${entry.id}`}
+                    aria-selected="false"
+                    aria-controls={`psi-panel-desktop-${entry.id}`}
+                    data-psi-tab="desktop"
+                    tabindex="-1"
+                  >
+                    DESKTOP
+                  </button>
+                </div>
 
-                <dl class="proof__stats">
-                  <div class="proof__stat">
-                    <dt>Načtení</dt>
-                    <dd>{entry.loadTime}</dd>
-                  </div>
-                  <div class="proof__stat">
-                    <dt>Architektura</dt>
-                    <dd>{entry.architecture}</dd>
-                  </div>
-                </dl>
+                {
+                  (['mobile', 'desktop'] as const).map((strategy) => {
+                    const report = entry.psi[strategy];
+                    const active = strategy === 'mobile';
+                    return (
+                      <div
+                        class:list={[
+                          'proof__psi-panel',
+                          { 'is-active': active },
+                        ]}
+                        role="tabpanel"
+                        id={`psi-panel-${strategy}-${entry.id}`}
+                        aria-labelledby={`psi-tab-${strategy}-${entry.id}`}
+                        data-psi-panel={strategy}
+                        hidden={!active}
+                      >
+                        <ul class="proof__rings" role="list">
+                          {scoreLabels.map((m) => {
+                            const score = report.scores[m.key];
+                            return (
+                              <li class="proof__ring">
+                                <svg
+                                  class="proof__ring-svg"
+                                  viewBox="0 0 88 88"
+                                  aria-hidden="true"
+                                  focusable="false"
+                                >
+                                  <circle
+                                    class="proof__ring-track"
+                                    cx="44"
+                                    cy="44"
+                                    r="36"
+                                    fill="none"
+                                    stroke-width="4"
+                                  />
+                                  <circle
+                                    class="proof__ring-value"
+                                    cx="44"
+                                    cy="44"
+                                    r="36"
+                                    fill="none"
+                                    stroke-width="4"
+                                    stroke-dasharray={ringPath(score)}
+                                    stroke-dashoffset="0"
+                                    transform="rotate(-90 44 44)"
+                                  />
+                                  <text
+                                    x="44"
+                                    y="48"
+                                    text-anchor="middle"
+                                    class="proof__ring-score"
+                                  >
+                                    {score}
+                                  </text>
+                                </svg>
+                                <span class="proof__ring-label">{m.label}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+
+                        <dl class="proof__stats proof__stats--vitals">
+                          <div class="proof__stat">
+                            <dt>LCP</dt>
+                            <dd>{report.vitals.lcp}</dd>
+                          </div>
+                          <div class="proof__stat">
+                            <dt>FCP</dt>
+                            <dd>{report.vitals.fcp}</dd>
+                          </div>
+                          <div class="proof__stat">
+                            <dt>CLS</dt>
+                            <dd>{report.vitals.cls}</dd>
+                          </div>
+                          <div class="proof__stat">
+                            <dt>TBT</dt>
+                            <dd>{report.vitals.tbt}</dd>
+                          </div>
+                          <div class="proof__stat">
+                            <dt>SI</dt>
+                            <dd>{report.vitals.si}</dd>
+                          </div>
+                          <div class="proof__stat">
+                            <dt>Architektura</dt>
+                            <dd>{entry.architecture}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    );
+                  })
+                }
 
                 <a
                   class="proof__verify"
@@ -161,9 +233,9 @@ import {
   <div class="proof__outcomes">
     <blockquote class="proof__outcome">
       <p>
-        Na&nbsp;design-home.cz: 100/100 v&nbsp;PageSpeed. Každá vteřina
-        zpoždění jinak žere rozpočet na&nbsp;reklamu – tady se návštěvník
-        dočká obsahu dřív, než stihne odejít.
+        Na&nbsp;design-home.cz: živý lab report PageSpeed (mobil +&nbsp;desktop).
+        Každá vteřina zpoždění jinak žere rozpočet na&nbsp;reklamu – tady
+        měříme veřejně a&nbsp;smluvně držíme garanci 90+.
       </p>
     </blockquote>
     <blockquote class="proof__outcome">
@@ -412,6 +484,72 @@ import {
     color: var(--color-accent);
   }
 
+  .proof__psi-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: var(--border);
+    width: 100%;
+    max-width: 22rem;
+  }
+
+  .proof__psi-tab {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-inline-end: var(--border);
+    background: transparent;
+    color: var(--color-meta);
+    font-size: var(--text-xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition:
+      color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .proof__psi-tab:last-child {
+    border-inline-end: none;
+  }
+
+  .proof__psi-tab:hover,
+  .proof__psi-tab:focus-visible {
+    color: var(--color-accent-hot);
+  }
+
+  .proof__psi-tab.is-active {
+    color: var(--color-accent-hot);
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: inset 0 -2px 0 var(--color-accent);
+  }
+
+  .proof__psi-panel[hidden] {
+    display: none;
+  }
+
+  .proof__psi-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    animation: proof-psi-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes proof-psi-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .proof__psi-panel {
+      animation: none;
+    }
+  }
+
   .proof__rings {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -459,6 +597,10 @@ import {
     gap: var(--space-2);
     border-block-start: var(--border);
     padding-block-start: var(--space-3);
+  }
+
+  .proof__stats--vitals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .proof__stat {
@@ -580,6 +722,10 @@ import {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .proof__stats--vitals {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
     .proof__outcomes {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
@@ -592,3 +738,55 @@ import {
   }
 
 </style>
+
+<script>
+  function initPsiSwitchers() {
+    document.querySelectorAll<HTMLElement>('[data-psi-card]').forEach((card) => {
+      if (card.dataset.bound === '1') return;
+      card.dataset.bound = '1';
+
+      const tabs = Array.from(
+        card.querySelectorAll<HTMLButtonElement>('[data-psi-tab]'),
+      );
+      const panels = Array.from(
+        card.querySelectorAll<HTMLElement>('[data-psi-panel]'),
+      );
+      if (tabs.length === 0) return;
+
+      const activate = (strategy: string) => {
+        tabs.forEach((tab) => {
+          const on = tab.dataset.psiTab === strategy;
+          tab.classList.toggle('is-active', on);
+          tab.setAttribute('aria-selected', String(on));
+          tab.tabIndex = on ? 0 : -1;
+        });
+        panels.forEach((panel) => {
+          const on = panel.dataset.psiPanel === strategy;
+          panel.hidden = !on;
+          panel.classList.toggle('is-active', on);
+        });
+      };
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          activate(tab.dataset.psiTab || 'mobile');
+        });
+        tab.addEventListener('keydown', (event) => {
+          const i = tabs.indexOf(tab);
+          if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+            event.preventDefault();
+            const next =
+              event.key === 'ArrowRight'
+                ? tabs[(i + 1) % tabs.length]
+                : tabs[(i - 1 + tabs.length) % tabs.length];
+            next?.focus();
+            activate(next?.dataset.psiTab || 'mobile');
+          }
+        });
+      });
+    });
+  }
+
+  initPsiSwitchers();
+  document.addEventListener('astro:page-load', initPsiSwitchers);
+</script>

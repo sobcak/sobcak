@@ -19,7 +19,7 @@
 ## Obchodní přínosy (pro netechnického majitele)
 - Statická architektura = okamžité načtení (~0,8 s) a nulové riziko napadení přes SQL / WordPress pluginy
 - Uzamčený editor rozvržení = ceny, texty a aktuality za ~30 vteřin v prohlížeči; vzhled a mobilní layout jsou uzamčené v kódu
-- Garance PageSpeed 90+; důkaz design-home.cz = 100/100 — měřitelná převaha nad pomalými šablonami, které žerou rozpočet na reklamu
+- Garance PageSpeed 90+; důkaz design-home.cz = živý lab report (mobil + desktop na pagespeed.web.dev) — měřitelná převaha nad pomalými šablonami, které žerou rozpočet na reklamu
 - 100% vlastnictví zdrojového kódu (.zip)
 
 ## Cenové balíčky (doporučení přes BleedCalculator → ContactTerminal)

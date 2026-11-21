@@ -71,7 +71,8 @@ npm run preview  # preview dist/
 - Audience: owners/jednatelé in Berounsko–Praha (manufacturing, high-margin craft, premium services, local B2B)
 - Tone: confident, sharp, factual, margin-anchored; no agency clichés
 - Typography: hard spaces after `v/s/z/k/o/u/i/a`; NBSP in thousands and before units; decimal comma; Czech quotes `„“`; en dash `–` with spaces
-- Tech→business: ~0,8 s load + no SQL/plugin attack surface; locked editor (~30 s content edits, layout locked); PageSpeed 90+ / design-home.cz 100/100
+- Tech→business: target ~0,8 s load + no SQL/plugin attack surface; locked editor (~30 s content edits, layout locked); PageSpeed 90+ guarantee
+- design-home.cz proof PSI (lab, pagespeed.web.dev 2026-11-21): mobile 76/91/96/100 · desktop 80/91/96/100 (Perf/A11y/BP/SEO); ProofSection shows switchable MOBIL|DESKTOP vitals
 
 ## Pricing (on-site + llms.txt)
 - Shared Astro core + 90+ Green-Zone Guarantee across all tiers; price scales by architectural scope only
