@@ -15,7 +15,17 @@
 - Inline spans: always use explicit `&nbsp;` around amount/tier spans so Astro/HTML never collapses “o1 080 000Kč” or “smluvnígarance”
 - Post-launch hosting: `0 Kč/měs.` (with period); lowercase after em-dashes (“po dokončení”, “web i uzamčený”)
 - Footer: “// Na architekturu dohlíží Oliver”; omit IČO until a real number exists
-- CatTailNav (ALEX): fades out on scroll with `pointer-events: none` so it never overlaps content
+- CatTailNav (ALEX): geometric/ASCII session-operator portrait; fades out on scroll with `pointer-events: none` so it never overlaps content; gold eyes track pointer in the open overlay (`prefers-reduced-motion`: eyes lit, pupils static)
+
+## Experience model — Monitor Session
+- Mobile-first **session** metaphor: CRT boot → channel switcher (Alex) → diagnostic beats → recommendation theatre
+- Same anchors (`#dukaz` · `#diagnostic` · `#cenik` · `#proces` · `#kontakt`); pacing/theatre changes, not IA
+- `src/utils/sessionBus.ts` — `channel:enter` / `switchChannel` syncs Alex, hero CTAs, section chrome
+- Mobile (`max-width: 767px`): channel-enter flash on section observe; horizontal snap strips on pricing + proces gates (no full-page y-snap — fights expanding diagnostic beats)
+- Diagnostic: one beat per viewport on mobile (problem → visitors → AOV → results → form); View Transitions when available
+- Pricing: recommended tier from diagnostic state snaps into focus first (horizontal strip on mobile)
+- Proces: gate-by-gate horizontal snap protocol on mobile
+- `prefers-reduced-motion`: no boot theatre, no scroll-driven wipes, no swipe requirement — linear usable scroll
 
 ## SEO / agentic
 - Site: `https://sobcak.cz`, `lang="cs"`
@@ -24,6 +34,7 @@
 
 ## Cross-component bus
 - `src/utils/diagnosticBus.ts` — unified quiz/form: `dispatchDiagnostic` / `diagnostic:update`, plus `openContactForm` / `openDiagnosticQuiz` for in-place view swaps
+- `src/utils/sessionBus.ts` — Monitor Session channels: `dispatchChannelEnter` / `subscribeChannelEnter` / `switchChannel`
 - `#diagnostic` and `#kontakt` share one container (`BleedCalculator`): quiz → results+cat-eye sliders → form; Pricing `data-open-contact` + nav `#kontakt` jump straight to form
 
 ## Commands
@@ -38,7 +49,7 @@ npm run preview  # preview dist/
 - `src/styles/global.css`
 - `src/pages/index.astro`
 - `src/components/HeroFrame.astro` — ASCII TV bezel hero (`SOBČÁK` + primary CTA → `#diagnostic`, ghost → `#dukaz`)
-- `src/components/CatTailNav.astro` — pullable “Alex” cat-tail overlay nav (`pointerdown` / Esc)
+- `src/components/CatTailNav.astro` — Alex channel switcher (geometric/ASCII operator portrait, click / Esc; eyes track pointer)
 - `src/data/portfolio.ts` — modular `#dukaz` portfolio entries (domain, preview, PSI scores, vitals)
 - `src/components/ProofSection.astro` — `#dukaz` portfolio showcase (framed previews + themed PSI cards + locked-editor narrative)
 - `public/portfolio/` — client site preview screenshots (webp + jpg)
@@ -49,6 +60,7 @@ npm run preview  # preview dist/
 - `src/components/ContactTerminal.astro` — regional footer only (form lives in BleedCalculator)
 - `public/llms.txt`
 - `src/utils/diagnosticBus.ts`
+- `src/utils/sessionBus.ts`
 - `functions/` — Cloudflare Pages Functions (edge)
 
 ## Nav anchors (homepage)
@@ -59,7 +71,8 @@ npm run preview  # preview dist/
 - Audience: owners/jednatelé in Berounsko–Praha (manufacturing, high-margin craft, premium services, local B2B)
 - Tone: confident, sharp, factual, margin-anchored; no agency clichés
 - Typography: hard spaces after `v/s/z/k/o/u/i/a`; NBSP in thousands and before units; decimal comma; Czech quotes `„“`; en dash `–` with spaces
-- Tech→business: ~0,8 s load + no SQL/plugin attack surface; locked editor (~30 s content edits, layout locked); PageSpeed 90+ / design-home.cz 100/100
+- Tech→business: target ~0,8 s load + no SQL/plugin attack surface; locked editor (~30 s content edits, layout locked); PageSpeed 90+ guarantee
+- design-home.cz proof PSI (lab, pagespeed.web.dev 2026-11-21): mobile 76/91/96/100 · desktop 80/91/96/100 (Perf/A11y/BP/SEO); ProofSection shows switchable MOBIL|DESKTOP vitals
 
 ## Pricing (on-site + llms.txt)
 - Shared Astro core + 90+ Green-Zone Guarantee across all tiers; price scales by architectural scope only

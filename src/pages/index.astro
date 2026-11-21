@@ -13,7 +13,7 @@ import ContactTerminal from '../components/ContactTerminal.astro';
   <CatTailNav />
   <HeroFrame />
 
-  <main id="main">
+  <main id="main" data-session-main>
     <ProofSection />
     <BleedCalculator />
     <PricingTiers />
@@ -21,3 +21,116 @@ import ContactTerminal from '../components/ContactTerminal.astro';
     <ContactTerminal />
   </main>
 </Layout>
+
+<script>
+  import {
+    channelFromHash,
+    dispatchChannelEnter,
+    type ChannelId,
+  } from '../utils/sessionBus';
+
+  /** Scroll-observed channels (#kontakt lives inside #diagnostic — view-swapped). */
+  const SCROLL_CHANNELS: ChannelId[] = [
+    'top',
+    'dukaz',
+    'diagnostic',
+    'cenik',
+    'proces',
+  ];
+
+  function prefersReducedMotion(): boolean {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function initSessionShell() {
+    if (document.documentElement.dataset.sessionBound === '1') return;
+    document.documentElement.dataset.sessionBound = '1';
+
+    const sections = SCROLL_CHANNELS.map((id) =>
+      document.getElementById(id),
+    ).filter((el): el is HTMLElement => Boolean(el));
+
+    sections.forEach((el) => {
+      el.setAttribute('data-channel-section', el.id);
+    });
+
+    let enterTimer: number | null = null;
+    let lastVisual: ChannelId | null = null;
+
+    const markActive = (id: ChannelId) => {
+      const visualId: ChannelId = id === 'kontakt' ? 'diagnostic' : id;
+      const changed = lastVisual !== visualId;
+      lastVisual = visualId;
+      sections.forEach((el) => {
+        const active = el.id === visualId;
+        el.classList.toggle('is-channel-active', active);
+        if (active && changed && !prefersReducedMotion()) {
+          el.classList.remove('is-channel-enter');
+          void el.offsetWidth;
+          el.classList.add('is-channel-enter');
+          if (enterTimer !== null) window.clearTimeout(enterTimer);
+          enterTimer = window.setTimeout(() => {
+            el.classList.remove('is-channel-enter');
+          }, 600);
+        }
+      });
+      dispatchChannelEnter(id);
+    };
+
+    const fromHash = channelFromHash(window.location.hash);
+    if (fromHash) {
+      markActive(fromHash);
+    } else {
+      markActive('top');
+    }
+
+    window.addEventListener('channel:enter', ((e: CustomEvent<{ id: ChannelId }>) => {
+      const id = e.detail?.id;
+      if (!id) return;
+      const visualId: ChannelId = id === 'kontakt' ? 'diagnostic' : id;
+      sections.forEach((el) => {
+        el.classList.toggle('is-channel-active', el.id === visualId);
+      });
+    }) as EventListener);
+
+    if (!('IntersectionObserver' in window)) return;
+
+    const ratios = new Map<string, number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.intersectionRatio);
+        }
+        // Don't override form view with diagnostic scroll while on #kontakt
+        if (window.__SESSION_CHANNEL__ === 'kontakt') return;
+
+        let bestId: ChannelId | null = null;
+        let bestRatio = 0;
+        for (const id of SCROLL_CHANNELS) {
+          const r = ratios.get(id) ?? 0;
+          if (r > bestRatio) {
+            bestRatio = r;
+            bestId = id;
+          }
+        }
+        if (bestId && bestRatio > 0.18) markActive(bestId);
+      },
+      {
+        root: null,
+        threshold: [0.18, 0.35, 0.55, 0.75],
+        rootMargin: '-8% 0px -35% 0px',
+      },
+    );
+
+    sections.forEach((el) => observer.observe(el));
+
+    window.addEventListener('hashchange', () => {
+      const id = channelFromHash(window.location.hash);
+      if (id) markActive(id);
+    });
+  }
+
+  initSessionShell();
+  document.addEventListener('astro:page-load', initSessionShell);
+</script>

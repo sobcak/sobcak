@@ -50,6 +50,7 @@ const aovBrackets = [
   aria-labelledby="diagnostic-heading"
   data-bleed-calc
   data-view="quiz"
+  data-beat="p"
 >
   <header class="bleed__header">
     <p class="meta bleed__meta" data-view-meta>// DIAGNOSTIKA · ROČNÍ ZTRÁTA · DOPORUČENÍ</p>
@@ -58,12 +59,15 @@ const aovBrackets = [
       Spočítejte, kolik vás současný web stojí na&nbsp;ztracených zakázkách –
       a&nbsp;který balíček tu díru v&nbsp;marži uzavře.
     </p>
+    <p class="bleed__progress meta" data-beat-progress aria-live="polite">
+      BEAT <span data-beat-current>01</span> // 03
+    </p>
   </header>
 
   <!-- ─── Stage 1 + 2: Quiz / Results ─── -->
   <div class="bleed__shell surface" data-panel="quiz">
     <form class="bleed__form" data-bleed-form>
-      <fieldset class="bleed__step">
+      <fieldset class="bleed__step bleed__beat" data-beat-panel="p">
         <legend class="bleed__step-label">
           <span class="bleed__step-num">01</span>
           Hlavní problém (P)
@@ -88,77 +92,81 @@ const aovBrackets = [
         </div>
       </fieldset>
 
-      <fieldset class="bleed__step">
+      <fieldset class="bleed__step bleed__beat" data-beat-panel="v" hidden>
         <legend class="bleed__step-label">
           <span class="bleed__step-num">02</span>
-          Parametry provozu
+          Měsíční návštěvnost (V)
         </legend>
-
-        <div class="bleed__bracket-block">
-          <p class="bleed__bracket-label">Měsíční návštěvnost (V)</p>
-          <div
-            class="bleed__options bleed__options--compact"
-            role="radiogroup"
-            aria-label="Měsíční návštěvnost"
-          >
-            {
-              visitorBrackets.map((b) => (
-                <label class="bleed__option bleed__option--compact">
-                  <input
-                    type="radio"
-                    name="visitorsBracket"
-                    value={String(b.value)}
-                    data-quiz-answer="v"
-                  />
-                  <span class="bleed__option-body">
-                    <span class="bleed__option-label">{b.label}</span>
-                  </span>
-                </label>
-              ))
-            }
-          </div>
-        </div>
-
-        <div class="bleed__bracket-block">
-          <p class="bleed__bracket-label">Průměrná hodnota zakázky</p>
-          <div
-            class="bleed__options bleed__options--compact"
-            role="radiogroup"
-            aria-label="Průměrná hodnota zakázky"
-          >
-            {
-              aovBrackets.map((b) => (
-                <label class="bleed__option bleed__option--compact">
-                  <input
-                    type="radio"
-                    name="aovBracket"
-                    value={String(b.value)}
-                    data-quiz-answer="aov"
-                  />
-                  <span class="bleed__option-body">
-                    <span class="bleed__option-label">{b.label}</span>
-                  </span>
-                </label>
-              ))
-            }
-          </div>
+        <div
+          class="bleed__options bleed__options--compact"
+          role="radiogroup"
+          aria-label="Měsíční návštěvnost"
+        >
+          {
+            visitorBrackets.map((b) => (
+              <label class="bleed__option bleed__option--compact">
+                <input
+                  type="radio"
+                  name="visitorsBracket"
+                  value={String(b.value)}
+                  data-quiz-answer="v"
+                />
+                <span class="bleed__option-body">
+                  <span class="bleed__option-label">{b.label}</span>
+                </span>
+              </label>
+            ))
+          }
         </div>
       </fieldset>
 
-      <p class="bleed__skip-wrap">
-        <button type="button" class="bleed__skip" data-skip-diagnostic>
-          Přeskočit diagnostiku →
+      <fieldset class="bleed__step bleed__beat" data-beat-panel="aov" hidden>
+        <legend class="bleed__step-label">
+          <span class="bleed__step-num">03</span>
+          Průměrná hodnota zakázky
+        </legend>
+        <div
+          class="bleed__options bleed__options--compact"
+          role="radiogroup"
+          aria-label="Průměrná hodnota zakázky"
+        >
+          {
+            aovBrackets.map((b) => (
+              <label class="bleed__option bleed__option--compact">
+                <input
+                  type="radio"
+                  name="aovBracket"
+                  value={String(b.value)}
+                  data-quiz-answer="aov"
+                />
+                <span class="bleed__option-body">
+                  <span class="bleed__option-label">{b.label}</span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="bleed__beat-nav" data-beat-nav>
+        <button type="button" class="bleed__beat-back" data-beat-back hidden>
+          [ ← ZPĚT ]
         </button>
-      </p>
+        <p class="bleed__skip-wrap">
+          <button type="button" class="bleed__skip" data-skip-diagnostic>
+            Přeskočit diagnostiku →
+          </button>
+        </p>
+      </div>
 
       <!-- Stage 2: revealed once all three answers are set -->
-      <div class="bleed__results" data-results hidden>
+      <div class="bleed__results bleed__beat" data-results data-beat-panel="results" hidden>
         <div class="bleed__step bleed__step--output" aria-live="polite">
           <p class="bleed__step-label">
-            <span class="bleed__step-num">03</span>
+            <span class="bleed__step-num">04</span>
             Roční ztráta (X)
           </p>
-          <p class="bleed__output">
+          <p class="bleed__output bleed__output--reveal">
             Současný web vás připravuje přibližně o&nbsp;<span class="bleed__loss"
               ><span data-bleed-x>0</span>&nbsp;Kč</span
             >&nbsp;ročně – peníze, které mohly být v&nbsp;poptávkách, ne
@@ -173,7 +181,7 @@ const aovBrackets = [
 
         <div class="bleed__step bleed__step--route" aria-live="polite">
           <p class="bleed__step-label">
-            <span class="bleed__step-num">04</span>
+            <span class="bleed__step-num">05</span>
             Doporučený balíček
           </p>
           <p class="bleed__tier" data-bleed-tier></p>
@@ -428,6 +436,84 @@ const aovBrackets = [
     font-size: var(--text-lg);
     line-height: 1.45;
     max-width: 40rem;
+  }
+
+  .bleed__progress {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    max-width: none;
+  }
+
+  .bleed__progress[hidden] {
+    display: none;
+  }
+
+  .bleed__beat[hidden] {
+    display: none;
+  }
+
+  .bleed__beat-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .bleed__beat-back {
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: var(--color-meta);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bleed__beat-back:hover,
+  .bleed__beat-back:focus-visible {
+    color: var(--color-accent-hot);
+  }
+
+  .bleed__beat-back[hidden] {
+    display: none;
+  }
+
+  .bleed__output--reveal .bleed__loss {
+    display: inline-block;
+  }
+
+  .bleed__results.is-loss-reveal .bleed__loss {
+    animation: bleed-loss-reveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @keyframes bleed-loss-reveal {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+      filter: brightness(1.6);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+      filter: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .bleed[data-view='quiz'] .bleed__shell,
+    .bleed[data-view='results'] .bleed__shell {
+      min-height: min(70svh, 36rem);
+    }
+
+    .bleed__beat:not([hidden]) {
+      min-height: min(52svh, 28rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: var(--space-4);
+    }
   }
 
   .bleed__shell {
@@ -905,6 +991,25 @@ const aovBrackets = [
   }
 
   @media (min-width: 768px) {
+    /* Desktop: show all quiz beats in one denser flow */
+    .bleed__beat[data-beat-panel='p'],
+    .bleed__beat[data-beat-panel='v'],
+    .bleed__beat[data-beat-panel='aov'] {
+      display: flex !important;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .bleed__beat[data-beat-panel='v'][hidden],
+    .bleed__beat[data-beat-panel='aov'][hidden] {
+      display: flex !important;
+    }
+
+    .bleed__progress,
+    .bleed__beat-back {
+      display: none !important;
+    }
+
     .bleed__options {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -929,6 +1034,18 @@ const aovBrackets = [
       flex: 1;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bleed__results.is-loss-reveal .bleed__loss {
+      animation: none;
+    }
+  }
+
+  ::view-transition-old(bleed-panel),
+  ::view-transition-new(bleed-panel) {
+    animation-duration: 0.35s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
 </style>
 
 <script>
@@ -943,6 +1060,9 @@ const aovBrackets = [
     DiagnosticView,
     OpenFormDetail,
   } from '../utils/diagnosticBus';
+  import { dispatchChannelEnter } from '../utils/sessionBus';
+
+  type BeatId = 'p' | 'v' | 'aov' | 'results';
 
   function formatCzk(value: number): string {
     return new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(
@@ -954,6 +1074,25 @@ const aovBrackets = [
     if (x < 150_000) return 'TIER_01';
     if (x <= 500_000) return 'TIER_02';
     return 'TIER_03';
+  }
+
+  function prefersReducedMotion(): boolean {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function isMobileBeats(): boolean {
+    return window.matchMedia('(max-width: 767px)').matches;
+  }
+
+  function runViewTransition(update: () => void): void {
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    if (!prefersReducedMotion() && typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(update);
+      return;
+    }
+    update();
   }
 
   const TIER_COPY: Record<DiagnosticPayload['recommendedTier'], string> = {
@@ -978,6 +1117,13 @@ const aovBrackets = [
       lede: 'Pošlete stručný popis. Údaje z\u00A0diagnostiky se připojí automaticky – nemusíte je opisovat.',
     },
   } as const;
+
+  const BEAT_LABEL: Record<BeatId, string> = {
+    p: '01',
+    v: '02',
+    aov: '03',
+    results: '04',
+  };
 
   /** Pupil dilation: t=0 vertical slit → t=1 round dilated. */
   function pupilRadii(t: number): { rx: number; ry: number } {
@@ -1031,6 +1177,8 @@ const aovBrackets = [
     const metaEl = root.querySelector<HTMLElement>('[data-view-meta]');
     const titleEl = root.querySelector<HTMLElement>('[data-view-title]');
     const ledeEl = root.querySelector<HTMLElement>('[data-view-lede]');
+    const progressEl = root.querySelector<HTMLElement>('[data-beat-progress]');
+    const beatBack = root.querySelector<HTMLButtonElement>('[data-beat-back]');
 
     const badge = root.querySelector<HTMLElement>('[data-diag-badge]');
     const bleedEl = root.querySelector<HTMLElement>('[data-diag-bleed]');
@@ -1074,8 +1222,12 @@ const aovBrackets = [
       return;
     }
 
+    quizPanel.style.viewTransitionName = 'bleed-panel';
+    formPanel.style.viewTransitionName = 'bleed-panel';
+
     let view: DiagnosticView = 'quiz';
     let quizComplete = false;
+    let beat: BeatId = 'p';
 
     const readP = (): number | null => {
       const checked = form.querySelector<HTMLInputElement>(
@@ -1126,42 +1278,91 @@ const aovBrackets = [
       badge.hidden = true;
     };
 
-    const setView = (next: DiagnosticView, opts: OpenFormDetail = {}) => {
-      const showForm = next === 'form';
-      view = showForm ? 'form' : quizComplete ? 'results' : 'quiz';
-
-      quizPanel.hidden = showForm;
-      formPanel.hidden = !showForm;
-      root.dataset.view = view;
-
-      const h = showForm ? HEADER.form : HEADER.quiz;
-      metaEl.textContent = h.meta;
-      titleEl.textContent = h.title;
-      ledeEl.textContent = h.lede;
-
-      if (showForm) {
-        const state =
-          opts.preserveDiagnostic === false
-            ? null
-            : (window.__DIAGNOSTIC_STATE__ ?? null);
-        const tier = opts.tier ?? state?.recommendedTier ?? null;
-        applyBanner(state, tier);
-        history.replaceState(null, '', '#kontakt');
-        // Re-focus first field for keyboard users
-        contactForm.querySelector<HTMLInputElement>('input[name="name"]')?.focus({
-          preventScroll: true,
-        });
-      } else {
-        history.replaceState(null, '', '#diagnostic');
-        if (quizComplete) {
-          requestAnimationFrame(() => {
-            root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
-              const input = el.querySelector<HTMLInputElement>('input[type="range"]');
-              if (input) syncCatEye(el, input);
-            });
-          });
+    const syncBeatUi = () => {
+      const mobile = isMobileBeats();
+      const panels = root.querySelectorAll<HTMLElement>('[data-beat-panel]');
+      panels.forEach((panel) => {
+        const id = panel.dataset.beatPanel as BeatId;
+        if (!mobile) {
+          if (id === 'results') {
+            panel.hidden = !quizComplete;
+          } else {
+            panel.hidden = false;
+          }
+          return;
         }
+        if (id === 'results') {
+          panel.hidden = beat !== 'results' || !quizComplete;
+        } else {
+          panel.hidden = beat !== id;
+        }
+      });
+
+      if (progressEl) {
+        const showProgress = mobile && view !== 'form';
+        progressEl.hidden = !showProgress;
+        progressEl.innerHTML = `BEAT <span data-beat-current>${BEAT_LABEL[beat]}</span> // ${beat === 'results' ? '04' : '03'}`;
       }
+
+      if (beatBack) {
+        beatBack.hidden = !(mobile && view !== 'form' && beat !== 'p');
+      }
+
+      root.dataset.beat = beat;
+    };
+
+    const setBeat = (next: BeatId) => {
+      beat = next;
+      syncBeatUi();
+    };
+
+    const setView = (next: DiagnosticView, opts: OpenFormDetail = {}) => {
+      const apply = () => {
+        const showForm = next === 'form';
+        view = showForm ? 'form' : quizComplete ? 'results' : 'quiz';
+
+        quizPanel.hidden = showForm;
+        formPanel.hidden = !showForm;
+        root.dataset.view = view;
+
+        const h = showForm ? HEADER.form : HEADER.quiz;
+        metaEl.textContent = h.meta;
+        titleEl.textContent = h.title;
+        ledeEl.textContent = h.lede;
+
+        if (showForm) {
+          const state =
+            opts.preserveDiagnostic === false
+              ? null
+              : (window.__DIAGNOSTIC_STATE__ ?? null);
+          const tier = opts.tier ?? state?.recommendedTier ?? null;
+          applyBanner(state, tier);
+          history.replaceState(null, '', '#kontakt');
+          dispatchChannelEnter('kontakt');
+          if (progressEl) progressEl.hidden = true;
+          if (beatBack) beatBack.hidden = true;
+          contactForm.querySelector<HTMLInputElement>('input[name="name"]')?.focus({
+            preventScroll: true,
+          });
+        } else {
+          history.replaceState(null, '', '#diagnostic');
+          dispatchChannelEnter('diagnostic');
+          if (quizComplete) {
+            beat = 'results';
+            requestAnimationFrame(() => {
+              root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+                const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+                if (input) syncCatEye(el, input);
+              });
+            });
+          } else if (beat === 'results') {
+            beat = 'p';
+          }
+          syncBeatUi();
+        }
+      };
+
+      runViewTransition(apply);
     };
 
     const syncResults = () => {
@@ -1210,6 +1411,8 @@ const aovBrackets = [
       if (!quizAnswered()) {
         quizComplete = false;
         results.hidden = true;
+        results.classList.remove('is-loss-reveal');
+        syncBeatUi();
         return;
       }
 
@@ -1220,8 +1423,8 @@ const aovBrackets = [
         'input[name="aovBracket"]:checked',
       );
 
-      // Seed fine-tune sliders from bracket midpoints (once on first complete)
-      if (results.hidden && vBracket && aovBracket) {
+      const firstReveal = results.hidden;
+      if (firstReveal && vBracket && aovBracket) {
         vInput.value = vBracket.value;
         aovInput.value = aovBracket.value;
       }
@@ -1229,7 +1432,23 @@ const aovBrackets = [
       quizComplete = true;
       results.hidden = false;
       root.dataset.view = 'results';
+      beat = 'results';
+      syncBeatUi();
       syncResults();
+
+      if (firstReveal && !prefersReducedMotion()) {
+        results.classList.remove('is-loss-reveal');
+        void results.offsetWidth;
+        results.classList.add('is-loss-reveal');
+      }
+
+      if (firstReveal && isMobileBeats()) {
+        results.scrollIntoView({
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      }
+
       requestAnimationFrame(() => {
         root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
           const input = el.querySelector<HTMLInputElement>('input[type="range"]');
@@ -1251,10 +1470,89 @@ const aovBrackets = [
         if (target.name === 'aovBracket') {
           aovInput.value = target.value;
         }
+
+        if (isMobileBeats()) {
+          if (target.name === 'bottleneck') {
+            setBeat('v');
+            return;
+          }
+          if (target.name === 'visitorsBracket') {
+            setBeat('aov');
+            return;
+          }
+        }
+
         revealResultsIfReady();
         return;
       }
       if (quizComplete) syncResults();
+    });
+
+    beatBack?.addEventListener('click', () => {
+      if (beat === 'results') {
+        setBeat('aov');
+        quizComplete = false;
+        results.hidden = true;
+        root.dataset.view = 'quiz';
+        syncBeatUi();
+        return;
+      }
+      if (beat === 'aov') setBeat('v');
+      else if (beat === 'v') setBeat('p');
+    });
+
+    // Optional swipe between completed beats (mobile); ignore when touching ranges/inputs
+    let touchStartX = 0;
+    let touchStartY = 0;
+    quizPanel.addEventListener(
+      'touchstart',
+      (event) => {
+        if (!isMobileBeats() || prefersReducedMotion()) return;
+        const t = event.changedTouches[0];
+        if (!t) return;
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+      },
+      { passive: true },
+    );
+    quizPanel.addEventListener(
+      'touchend',
+      (event) => {
+        if (!isMobileBeats() || prefersReducedMotion() || view === 'form') return;
+        const target = event.target as Element | null;
+        if (target?.closest('input, textarea, button, label, a')) return;
+        const t = event.changedTouches[0];
+        if (!t) return;
+        const dx = t.clientX - touchStartX;
+        const dy = t.clientY - touchStartY;
+        if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 0) {
+          if (beat === 'p' && form.querySelector('input[name="bottleneck"]:checked')) {
+            setBeat('v');
+          } else if (
+            beat === 'v' &&
+            form.querySelector('input[name="visitorsBracket"]:checked')
+          ) {
+            setBeat('aov');
+          } else if (beat === 'aov' && quizAnswered()) {
+            revealResultsIfReady();
+          }
+        } else {
+          if (beat === 'results') {
+            setBeat('aov');
+            results.hidden = true;
+            quizComplete = quizAnswered();
+            root.dataset.view = 'quiz';
+            syncBeatUi();
+          } else if (beat === 'aov') setBeat('v');
+          else if (beat === 'v') setBeat('p');
+        }
+      },
+      { passive: true },
+    );
+
+    window.addEventListener('resize', () => {
+      syncBeatUi();
     });
 
     form.addEventListener('input', (event) => {
@@ -1408,6 +1706,7 @@ const aovBrackets = [
       const input = el.querySelector<HTMLInputElement>('input[type="range"]');
       if (input) syncCatEye(el, input);
     });
+    syncBeatUi();
   }
 
   initBleedCalculator();

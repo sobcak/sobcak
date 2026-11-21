@@ -28,7 +28,7 @@ const tiers = [
       'Vícestránkový web podle ověřené stavby design-home.cz',
       'Struktura, která vede návštěvníka k\u00A0poptávce',
       'Uzamčený editor: ceny a\u00A0texty za 30\u00A0vteřin, vzhled nerozbijete',
-      'Garance PageSpeed 90+ (důkaz 100/100 na design-home.cz)',
+      'Garance PageSpeed 90+ (živý lab report na design-home.cz)',
     ],
   },
   {
@@ -62,10 +62,13 @@ const hosting = [
 ] as const;
 ---
 
-<section id="cenik" class="tiers page" aria-labelledby="cenik-heading">
+<section id="cenik" class="tiers page" aria-labelledby="cenik-heading" data-tiers-theatre>
   <header class="tiers__header">
     <p class="meta tiers__meta">// CENÍK · ARCHITEKTURA · FOUNDING PARTNER</p>
     <h2 id="cenik-heading" class="tiers__title">CENÍK &amp; ARCHITEKTURA</h2>
+    <p class="tiers__rec meta" data-tiers-rec hidden>
+      // DOPORUČENO Z DIAGNOSTIKY · <span data-tiers-rec-id>—</span>
+    </p>
   </header>
 
   <div class="tiers__explainer surface">
@@ -78,8 +81,8 @@ const hosting = [
         href="https://design-home.cz"
         target="_blank"
         rel="noopener noreferrer">design-home.cz</a
-      >&nbsp;naměřeno 100/100). Cena se liší jen rozsahem – ne rychlostí ani
-      bezpečností.
+      >&nbsp;– živý lab report na design-home.cz). Cena se liší jen rozsahem –
+      ne rychlostí ani bezpečností.
     </p>
     <p class="tiers__founding">
       Founding Partner (−10&nbsp;000&nbsp;Kč, 5&nbsp;míst) platí výhradně
@@ -88,10 +91,10 @@ const hosting = [
     </p>
   </div>
 
-  <ul class="tiers__grid" role="list">
+  <ul class="tiers__grid" role="list" data-tiers-strip>
     {
       tiers.map((tier) => (
-        <li>
+        <li class="tiers__item" data-tier-item={tier.id}>
           <article
             class:list={[
               'tiers__card',
@@ -100,6 +103,7 @@ const hosting = [
             ]}
             id={tier.id}
             aria-labelledby={`${tier.id}-name`}
+            data-tier-card={tier.id}
           >
             <p class="tiers__card-id meta">{tier.id}</p>
             <h3 class="tiers__card-name" id={`${tier.id}-name`}>
@@ -199,6 +203,17 @@ const hosting = [
     padding-block-start: var(--space-3);
   }
 
+  .tiers__rec {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    max-width: none;
+  }
+
+  .tiers__rec[hidden] {
+    display: none;
+  }
+
   .tiers__grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -212,11 +227,34 @@ const hosting = [
     flex-direction: column;
     gap: var(--space-3);
     min-width: 0;
+    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .tiers__card--highlight {
+  .tiers__card--highlight,
+  .tiers__card.is-recommended {
     border: 1px solid #d4af37;
     background: rgba(212, 175, 55, 0.04);
+  }
+
+  .tiers__card.is-recommended {
+    box-shadow: inset 0 0 0 1px rgba(255, 215, 0, 0.25);
+  }
+
+  @media (max-width: 767px) {
+    .tiers__grid {
+      display: flex;
+      gap: var(--space-3);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--page-pad);
+      padding-block-end: var(--space-2);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tiers__item {
+      flex: 0 0 min(86vw, 22rem);
+      scroll-snap-align: center;
+    }
   }
 
   .tiers__card-id {
@@ -367,3 +405,48 @@ const hosting = [
     }
   }
 </style>
+
+<script>
+  import { subscribeDiagnostic } from '../utils/diagnosticBus';
+  import type { DiagnosticPayload } from '../utils/diagnosticBus';
+
+  function initPricingTheatre() {
+    const root = document.querySelector<HTMLElement>('[data-tiers-theatre]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const strip = root.querySelector<HTMLElement>('[data-tiers-strip]');
+    const recEl = root.querySelector<HTMLElement>('[data-tiers-rec]');
+    const recId = root.querySelector<HTMLElement>('[data-tiers-rec-id]');
+
+    const focusTier = (tier: DiagnosticPayload['recommendedTier']) => {
+      root.querySelectorAll<HTMLElement>('[data-tier-card]').forEach((card) => {
+        card.classList.toggle('is-recommended', card.dataset.tierCard === tier);
+      });
+
+      if (recEl && recId) {
+        recEl.hidden = false;
+        recId.textContent = tier;
+      }
+
+      const item = root.querySelector<HTMLElement>(`[data-tier-item="${tier}"]`);
+      if (!item || !strip) return;
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        item.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto'
+            : 'smooth',
+          inline: 'center',
+          block: 'nearest',
+        });
+      }
+    };
+
+    subscribeDiagnostic((payload) => {
+      focusTier(payload.recommendedTier);
+    });
+  }
+
+  initPricingTheatre();
+  document.addEventListener('astro:page-load', initPricingTheatre);
+</script>
