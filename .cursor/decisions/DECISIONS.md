@@ -49,7 +49,7 @@ npm run preview  # preview dist/
 - `src/styles/global.css`
 - `src/pages/index.astro`
 - `src/components/HeroFrame.astro` — ASCII TV bezel hero (`SOBČÁK` + primary CTA → `#diagnostic`, ghost → `#dukaz`)
-- `src/components/CatTailNav.astro` — pullable “Alex” cat-tail overlay nav (`pointerdown` / Esc)
+- `src/components/CatTailNav.astro` — Alex channel switcher (geometric/ASCII operator portrait, click / Esc; eyes track pointer)
 - `src/data/portfolio.ts` — modular `#dukaz` portfolio entries (domain, preview, PSI scores, vitals)
 - `src/components/ProofSection.astro` — `#dukaz` portfolio showcase (framed previews + themed PSI cards + locked-editor narrative)
 - `public/portfolio/` — client site preview screenshots (webp + jpg)
