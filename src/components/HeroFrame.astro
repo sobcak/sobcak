@@ -1,8 +1,8 @@
 ---
 /**
- * Television/monitor-style hero with ASCII bezel.
+ * Television/monitor-style hero with ASCII bezel + CRT boot sequence.
  * Brand-first: SOBČÁK is the dominant signal;
- * primary CTA → #diagnostic, secondary ghost → #dukaz.
+ * primary CTA → #diagnostic (ENTER SESSION), secondary ghost → #dukaz.
  */
 const ASCII_TOP = '╔' + '═'.repeat(46) + '╗';
 const ASCII_BOTTOM = '╚' + '═'.repeat(46) + '╝';
@@ -10,7 +10,7 @@ const ASCII_SIDE = Array.from({ length: 24 }, () => '║').join('\n');
 const ASCII_SCAN = '░▒▓█▓▒░';
 ---
 
-<header class="hero-frame" id="top" aria-labelledby="hero-brand">
+<header class="hero-frame" id="top" aria-labelledby="hero-brand" data-hero-boot>
   <div class="hero-frame__bezel" aria-hidden="true">
     <svg
       class="hero-frame__ascii-svg"
@@ -87,6 +87,9 @@ const ASCII_SCAN = '░▒▓█▓▒░';
   </div>
 
   <div class="hero-frame__screen">
+    <p class="hero-frame__boot-line meta" data-boot-line aria-hidden="true">
+      // BOOT · SESSION_READY
+    </p>
     <p class="hero-frame__meta meta">// MONITOR_01 · BEROUNSKO &amp; PRAHA</p>
     <h1 id="hero-brand" class="hero-frame__brand">SOBČÁK</h1>
     <p class="hero-frame__lede">
@@ -95,17 +98,55 @@ const ASCII_SCAN = '░▒▓█▓▒░';
       mění v&nbsp;poptávky – ne v&nbsp;odchody ke konkurenci.
     </p>
     <div class="hero-frame__ctas">
-      <a class="hero-frame__cta" href="#diagnostic">
+      <a class="hero-frame__cta" href="#diagnostic" data-enter-session>
         <span class="hero-frame__cta-label">SPOČÍTAT ROČNÍ ZTRÁTU</span>
         <span class="hero-frame__cta-glyph" aria-hidden="true">↓</span>
       </a>
-      <a class="hero-frame__cta hero-frame__cta--ghost" href="#dukaz">
+      <a class="hero-frame__cta hero-frame__cta--ghost" href="#dukaz" data-channel-link>
         <span class="hero-frame__cta-label">PROHLÉDNOUT REFERENCE</span>
         <span class="hero-frame__cta-glyph" aria-hidden="true">↓</span>
       </a>
     </div>
+    <p class="hero-frame__pull meta" aria-hidden="true">
+      <span class="hero-frame__pull-bar"></span>
+      ENTER SESSION
+    </p>
   </div>
 </header>
+
+<script>
+  import { switchChannel } from '../utils/sessionBus';
+
+  function initHeroBoot() {
+    const root = document.querySelector<HTMLElement>('[data-hero-boot]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      root.classList.add('is-booted');
+    } else {
+      requestAnimationFrame(() => root.classList.add('is-booting'));
+      window.setTimeout(() => {
+        root.classList.remove('is-booting');
+        root.classList.add('is-booted');
+      }, 1100);
+    }
+
+    root.querySelectorAll<HTMLAnchorElement>('[data-enter-session], [data-channel-link]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href');
+        if (!href?.startsWith('#')) return;
+        event.preventDefault();
+        const id = href.slice(1) as 'diagnostic' | 'dukaz';
+        switchChannel(id);
+      });
+    });
+  }
+
+  initHeroBoot();
+  document.addEventListener('astro:page-load', initHeroBoot);
+</script>
 
 <style>
   .hero-frame {
@@ -229,12 +270,32 @@ const ASCII_SCAN = '░▒▓█▓▒░';
         transparent 100%
       ),
       var(--color-bg);
-    animation: hero-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hero-frame__boot-line {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    opacity: 0;
+    max-width: none;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 0;
+  }
+
+  .hero-frame.is-booting .hero-frame__boot-line {
+    animation: hero-boot-type 0.55s steps(22, end) 0.05s both;
+  }
+
+  .hero-frame.is-booted .hero-frame__boot-line {
+    display: none;
   }
 
   .hero-frame__meta {
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(0.4rem);
   }
 
   .hero-frame__brand {
@@ -246,6 +307,8 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     word-break: break-word;
     max-width: 100%;
     text-wrap: balance;
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.98);
   }
 
   .hero-frame__lede {
@@ -253,6 +316,8 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     font-size: var(--text-base);
     color: var(--color-meta);
     line-height: 1.5;
+    opacity: 0;
+    transform: translateY(0.5rem);
   }
 
   .hero-frame__ctas {
@@ -262,14 +327,42 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     gap: var(--space-2);
     margin-block-start: var(--space-2);
     max-width: 100%;
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  .hero-frame.is-booting .hero-frame__meta {
+    animation: hero-boot-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  }
+
+  .hero-frame.is-booting .hero-frame__brand {
+    animation: hero-boot-brand 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+  }
+
+  .hero-frame.is-booting .hero-frame__lede {
+    animation: hero-boot-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+  }
+
+  .hero-frame.is-booting .hero-frame__ctas {
+    animation: hero-boot-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+  }
+
+  .hero-frame.is-booted .hero-frame__meta,
+  .hero-frame.is-booted .hero-frame__brand,
+  .hero-frame.is-booted .hero-frame__lede,
+  .hero-frame.is-booted .hero-frame__ctas {
+    opacity: 1;
+    transform: none;
   }
 
   .hero-frame__cta {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-2);
     width: fit-content;
     max-width: 100%;
+    min-height: 3rem;
     padding: var(--space-3) var(--space-4);
     border: var(--border-active);
     color: var(--color-accent-hot);
@@ -308,14 +401,69 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     animation: hero-cta-bounce 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
-  @keyframes hero-in {
+  .hero-frame__pull {
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-meta);
+    max-width: none;
+  }
+
+  .hero-frame__pull-bar {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-accent);
+    animation: hero-pull-pulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @media (max-width: 767px) {
+    .hero-frame__cta[data-enter-session] {
+      width: 100%;
+      min-height: 3.25rem;
+      font-size: var(--text-base);
+    }
+
+    .hero-frame.is-booted .hero-frame__pull {
+      display: inline-flex;
+    }
+  }
+
+  @keyframes hero-boot-type {
+    from {
+      opacity: 1;
+      width: 0;
+    }
+    to {
+      opacity: 1;
+      width: 18ch;
+    }
+  }
+
+  @keyframes hero-boot-in {
     from {
       opacity: 0;
-      transform: translateY(0.75rem);
+      transform: translateY(0.5rem);
     }
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes hero-boot-brand {
+    from {
+      opacity: 0;
+      transform: translateY(0.6rem) scale(0.98);
+      filter: brightness(1.4);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: none;
     }
   }
 
@@ -343,11 +491,43 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     }
   }
 
+  @keyframes hero-pull-pulse {
+    0%,
+    100% {
+      transform: scaleX(1);
+      opacity: 0.55;
+    }
+    50% {
+      transform: scaleX(1.45);
+      opacity: 1;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero-frame__screen,
     .hero-frame__scan,
-    .hero-frame__cta-glyph {
-      animation: none;
+    .hero-frame__cta-glyph,
+    .hero-frame__boot-line,
+    .hero-frame__meta,
+    .hero-frame__brand,
+    .hero-frame__lede,
+    .hero-frame__ctas,
+    .hero-frame__pull-bar {
+      animation: none !important;
+    }
+
+    .hero-frame__meta,
+    .hero-frame__brand,
+    .hero-frame__lede,
+    .hero-frame__ctas {
+      opacity: 1;
+      transform: none;
+    }
+
+    .hero-frame__boot-line,
+    .hero-frame__pull,
+    .hero-frame.is-booted .hero-frame__pull {
+      display: none !important;
     }
   }
 
@@ -369,6 +549,10 @@ const ASCII_SCAN = '░▒▓█▓▒░';
     .hero-frame__ctas {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .hero-frame__cta[data-enter-session] {
+      font-size: var(--text-sm);
     }
   }
 </style>

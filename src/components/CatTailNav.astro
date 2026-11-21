@@ -8,30 +8,35 @@ const links = [
     id: '01',
     label: 'DŮKAZ',
     href: '#dukaz',
+    channel: 'dukaz',
     external: false,
   },
   {
     id: '02',
     label: 'DIAGNOSTIKA',
     href: '#diagnostic',
+    channel: 'diagnostic',
     external: false,
   },
   {
     id: '03',
     label: 'CENÍK',
     href: '#cenik',
+    channel: 'cenik',
     external: false,
   },
   {
     id: '04',
     label: 'PROCES',
     href: '#proces',
+    channel: 'proces',
     external: false,
   },
   {
     id: '05',
     label: 'KONTAKT',
     href: '#kontakt',
+    channel: 'kontakt',
     external: false,
   },
 ] as const;
@@ -194,7 +199,7 @@ const links = [
       </div>
 
       <div class="cat-tail-nav__menu">
-        <p class="cat-tail-nav__menu-meta meta">// NAVIGACE · ONLINE</p>
+        <p class="cat-tail-nav__menu-meta meta">// CHANNELS · SESSION SWITCHER</p>
         <ul class="cat-tail-nav__list">
           {
             links.map((link) => (
@@ -202,6 +207,7 @@ const links = [
                 <a
                   class="cat-tail-nav__link"
                   href={link.href}
+                  data-channel={link.channel}
                   {...(link.external
                     ? {
                         target: '_blank',
@@ -236,6 +242,13 @@ const links = [
 </div>
 
 <script>
+  import {
+    switchChannel,
+    subscribeChannelEnter,
+    type ChannelId,
+  } from '../utils/sessionBus';
+  import { openContactForm, openDiagnosticQuiz } from '../utils/diagnosticBus';
+
   function initCatTailNav() {
     const root = document.querySelector<HTMLElement>('[data-cat-tail-nav]');
     if (!root || root.dataset.bound === '1') return;
@@ -249,7 +262,23 @@ const links = [
     let open = false;
     let lastFocus: HTMLElement | null = null;
     const FADE_START = 24;
-    const FADE_END = 160;
+    const FADE_END = 220;
+
+    const syncActiveChannel = (id: ChannelId) => {
+      root.querySelectorAll<HTMLAnchorElement>('[data-channel]').forEach((link) => {
+        // Form view maps to kontakt channel; diagnostic section covers both
+        const linkChannel = link.dataset.channel;
+        const active =
+          linkChannel === id ||
+          (id === 'kontakt' && linkChannel === 'kontakt') ||
+          (id === 'diagnostic' && linkChannel === 'diagnostic');
+        link.classList.toggle('is-active-channel', active);
+        if (active) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+
+    subscribeChannelEnter(({ id }) => syncActiveChannel(id));
 
     const syncScrollFade = () => {
       if (open) {
@@ -261,7 +290,9 @@ const links = [
 
       const y = window.scrollY || document.documentElement.scrollTop || 0;
       const t = Math.min(1, Math.max(0, (y - FADE_START) / (FADE_END - FADE_START)));
-      const opacity = 1 - t;
+      // Keep a usable residual hit target on mobile after fade
+      const floor = window.matchMedia('(max-width: 767px)').matches ? 0.28 : 0;
+      const opacity = Math.max(floor, 1 - t);
       trigger.style.opacity = String(opacity);
       const interactive = opacity > 0.15;
       trigger.style.pointerEvents = interactive ? 'auto' : 'none';
@@ -285,10 +316,12 @@ const links = [
       if (next) {
         overlay.removeAttribute('inert');
         lastFocus = document.activeElement as HTMLElement | null;
-        // Defer past the triggering click so focus isn't stolen back by the button
         requestAnimationFrame(() => {
+          const active = overlay.querySelector<HTMLElement>(
+            '.cat-tail-nav__link.is-active-channel',
+          );
           const firstLink = overlay.querySelector<HTMLElement>('.cat-tail-nav__link');
-          (firstLink ?? closeBtn)?.focus();
+          (active ?? firstLink ?? closeBtn)?.focus();
         });
       } else {
         overlay.setAttribute('inert', '');
@@ -304,22 +337,10 @@ const links = [
     };
 
     const toggle = () => setOpen(!open);
-    let pointerArmed = false;
 
-    trigger.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) return;
-      if (trigger.style.pointerEvents === 'none') return;
-      pointerArmed = true;
-      toggle();
-    });
-
+    // Click/keyboard only — avoids pointerdown+click double-toggle on some agents
     trigger.addEventListener('click', (event) => {
-      // pointerdown already toggled; keyboard Enter/Space still need click
-      if (pointerArmed) {
-        pointerArmed = false;
-        event.preventDefault();
-        return;
-      }
+      event.preventDefault();
       if (trigger.style.pointerEvents === 'none') return;
       toggle();
     });
@@ -327,8 +348,22 @@ const links = [
     closeBtn?.addEventListener('click', () => setOpen(false));
 
     overlay.querySelectorAll<HTMLAnchorElement>('.cat-tail-nav__link').forEach((link) => {
-      link.addEventListener('click', () => {
-        if (!link.target || link.target === '_self') setOpen(false);
+      link.addEventListener('click', (event) => {
+        if (link.target && link.target !== '_self') return;
+        event.preventDefault();
+        const channel = (link.dataset.channel || '') as ChannelId;
+        setOpen(false);
+        if (channel === 'kontakt') {
+          openContactForm({
+            preserveDiagnostic: Boolean(window.__DIAGNOSTIC_STATE__),
+          });
+          return;
+        }
+        if (channel === 'diagnostic') {
+          openDiagnosticQuiz();
+          return;
+        }
+        if (channel) switchChannel(channel);
       });
     });
 
@@ -371,13 +406,19 @@ const links = [
     display: grid;
     justify-items: end;
     gap: 0.15rem;
-    padding: var(--space-2) var(--space-2) 0 0;
+    padding:
+      calc(var(--space-2) + var(--safe-top, 0px))
+      calc(var(--space-3) + var(--safe-right, 0px))
+      var(--space-2)
+      var(--space-2);
     border: none;
     background: transparent;
     color: var(--color-accent);
-    width: clamp(4.5rem, 18vw, 5.5rem);
+    width: clamp(5rem, 20vw, 6rem);
+    min-height: 4.5rem;
     transition: opacity 180ms var(--ease-out);
     will-change: opacity;
+    touch-action: manipulation;
   }
 
   .cat-tail-nav.is-scrolled .cat-tail-nav__trigger {
@@ -511,6 +552,16 @@ const links = [
   .cat-tail-nav__link:focus-visible {
     color: var(--color-accent-hot);
     padding-inline-start: var(--space-2);
+  }
+
+  .cat-tail-nav__link.is-active-channel {
+    color: var(--color-accent-hot);
+    padding-inline-start: var(--space-2);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .cat-tail-nav__link.is-active-channel .cat-tail-nav__index {
+    color: var(--color-accent-hot);
   }
 
   .cat-tail-nav__index {

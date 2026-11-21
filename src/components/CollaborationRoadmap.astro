@@ -1,7 +1,7 @@
 ---
 /**
  * 5-Gate collaboration roadmap (#proces): contractual boundaries
- * in a brutalist monospace timeline.
+ * as a mobile gate-by-gate snap protocol.
  */
 
 const gates = [
@@ -40,7 +40,12 @@ const gates = [
 ] as const;
 ---
 
-<section id="proces" class="roadmap page" aria-labelledby="proces-heading">
+<section
+  id="proces"
+  class="roadmap page"
+  aria-labelledby="proces-heading"
+  data-gate-protocol
+>
   <header class="roadmap__header">
     <p class="meta roadmap__meta">// PROCES · 5 BRAN · SMLUVNÍ HRANICE</p>
     <h2 id="proces-heading" class="roadmap__title">PROCES SPOLUPRÁCE</h2>
@@ -48,12 +53,19 @@ const gates = [
       Pět bran. Žádné měkké deadliny, žádné tiché rozšiřování rozsahu – jen
       pevné milníky, které chrání termín i&nbsp;cenu.
     </p>
+    <p class="roadmap__active meta" data-gate-active aria-live="polite">
+      BRÁNA <span data-gate-current>01</span> // 05
+    </p>
   </header>
 
-  <ol class="roadmap__timeline" role="list">
+  <ol class="roadmap__timeline" role="list" data-gate-strip>
     {
       gates.map((gate) => (
-        <li class="roadmap__gate surface" id={`gate-${gate.id}`}>
+        <li
+          class="roadmap__gate surface"
+          id={`gate-${gate.id}`}
+          data-gate={gate.id}
+        >
           <div class="roadmap__rail" aria-hidden="true">
             <span class="roadmap__node" />
           </div>
@@ -75,6 +87,50 @@ const gates = [
     }
   </ol>
 </section>
+
+<script>
+  function initGateProtocol() {
+    const root = document.querySelector<HTMLElement>('[data-gate-protocol]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const strip = root.querySelector<HTMLElement>('[data-gate-strip]');
+    const currentEl = root.querySelector<HTMLElement>('[data-gate-current]');
+    const gates = Array.from(root.querySelectorAll<HTMLElement>('[data-gate]'));
+    if (!strip || !currentEl || gates.length === 0) return;
+
+    const setActive = (id: string) => {
+      gates.forEach((gate) => {
+        gate.classList.toggle('is-active-gate', gate.dataset.gate === id);
+      });
+      currentEl.textContent = id;
+    };
+
+    setActive(gates[0]?.dataset.gate || '01');
+
+    if (!('IntersectionObserver' in window)) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const id = (visible?.target as HTMLElement | undefined)?.dataset.gate;
+        if (id) setActive(id);
+      },
+      {
+        root: window.matchMedia('(max-width: 767px)').matches ? strip : null,
+        threshold: [0.45, 0.7],
+        rootMargin: '0px',
+      },
+    );
+
+    gates.forEach((gate) => observer.observe(gate));
+  }
+
+  initGateProtocol();
+  document.addEventListener('astro:page-load', initGateProtocol);
+</script>
 
 <style>
   .roadmap {
@@ -105,6 +161,13 @@ const gates = [
     max-width: 40rem;
   }
 
+  .roadmap__active {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    max-width: none;
+  }
+
   .roadmap__timeline {
     display: flex;
     flex-direction: column;
@@ -118,10 +181,16 @@ const gates = [
     gap: var(--space-4);
     padding: var(--space-4);
     border-block-start: none;
+    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .roadmap__gate:first-child {
     border-block-start: var(--border);
+  }
+
+  .roadmap__gate.is-active-gate {
+    border-color: var(--color-accent);
+    background: rgba(212, 175, 55, 0.04);
   }
 
   .roadmap__rail {
@@ -154,6 +223,10 @@ const gates = [
     background: var(--color-accent);
     border: 1px solid var(--color-accent-hot);
     flex-shrink: 0;
+  }
+
+  .roadmap__gate.is-active-gate .roadmap__node {
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
   }
 
   .roadmap__body {
@@ -203,7 +276,39 @@ const gates = [
     background: rgba(212, 175, 55, 0.05);
   }
 
+  @media (max-width: 767px) {
+    .roadmap__timeline {
+      flex-direction: row;
+      gap: var(--space-3);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--page-pad);
+      padding-block-end: var(--space-2);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .roadmap__gate {
+      flex: 0 0 min(88vw, 22rem);
+      scroll-snap-align: center;
+      grid-template-columns: 1fr;
+      min-height: min(58svh, 26rem);
+      border: var(--border);
+    }
+
+    .roadmap__gate:first-child {
+      border-block-start: var(--border);
+    }
+
+    .roadmap__rail {
+      display: none;
+    }
+  }
+
   @media (min-width: 768px) {
+    .roadmap__active {
+      display: none;
+    }
+
     .roadmap__gate {
       grid-template-columns: 1.5rem 1fr;
       gap: var(--space-6);

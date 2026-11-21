@@ -17,6 +17,16 @@
 - Footer: “// Na architekturu dohlíží Oliver”; omit IČO until a real number exists
 - CatTailNav (ALEX): fades out on scroll with `pointer-events: none` so it never overlaps content
 
+## Experience model — Monitor Session
+- Mobile-first **session** metaphor: CRT boot → channel switcher (Alex) → diagnostic beats → recommendation theatre
+- Same anchors (`#dukaz` · `#diagnostic` · `#cenik` · `#proces` · `#kontakt`); pacing/theatre changes, not IA
+- `src/utils/sessionBus.ts` — `channel:enter` / `switchChannel` syncs Alex, hero CTAs, section chrome
+- Mobile (`max-width: 767px`): channel-enter flash on section observe; horizontal snap strips on pricing + proces gates (no full-page y-snap — fights expanding diagnostic beats)
+- Diagnostic: one beat per viewport on mobile (problem → visitors → AOV → results → form); View Transitions when available
+- Pricing: recommended tier from diagnostic state snaps into focus first (horizontal strip on mobile)
+- Proces: gate-by-gate horizontal snap protocol on mobile
+- `prefers-reduced-motion`: no boot theatre, no scroll-driven wipes, no swipe requirement — linear usable scroll
+
 ## SEO / agentic
 - Site: `https://sobcak.cz`, `lang="cs"`
 - JSON-LD: `ProfessionalService` — "Tvorba webů a konverzní architektura Beroun a Praha — Oliver Sobčák"
@@ -24,6 +34,7 @@
 
 ## Cross-component bus
 - `src/utils/diagnosticBus.ts` — unified quiz/form: `dispatchDiagnostic` / `diagnostic:update`, plus `openContactForm` / `openDiagnosticQuiz` for in-place view swaps
+- `src/utils/sessionBus.ts` — Monitor Session channels: `dispatchChannelEnter` / `subscribeChannelEnter` / `switchChannel`
 - `#diagnostic` and `#kontakt` share one container (`BleedCalculator`): quiz → results+cat-eye sliders → form; Pricing `data-open-contact` + nav `#kontakt` jump straight to form
 
 ## Commands
@@ -49,6 +60,7 @@ npm run preview  # preview dist/
 - `src/components/ContactTerminal.astro` — regional footer only (form lives in BleedCalculator)
 - `public/llms.txt`
 - `src/utils/diagnosticBus.ts`
+- `src/utils/sessionBus.ts`
 - `functions/` — Cloudflare Pages Functions (edge)
 
 ## Nav anchors (homepage)

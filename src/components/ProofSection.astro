@@ -13,9 +13,9 @@ import {
 } from '../data/portfolio';
 ---
 
-<section id="dukaz" class="proof page" aria-labelledby="dukaz-heading">
+<section id="dukaz" class="proof page" aria-labelledby="dukaz-heading" data-proof-channel>
   <header class="proof__header">
-    <p class="meta proof__meta">// 01 · DŮKAZ · REFERENCE</p>
+    <p class="meta proof__meta">// CHANNEL_01 · DŮKAZ · LIVE FEED</p>
     <h2 id="dukaz-heading" class="proof__title">DŮKAZ</h2>
     <p class="proof__lede">
       Web, který se načte za&nbsp;0,8&nbsp;s. Mobilní zákazník neodejde
@@ -37,8 +37,9 @@ import {
           >
             <header class="proof__card-bar">
               <p class="proof__card-bar-label" id={headingId}>
-                // NÁHLED · {entry.domain.toUpperCase()}
+                // LIVE · {entry.domain.toUpperCase()}
               </p>
+              <span class="proof__card-live meta" aria-hidden="true">● ON AIR</span>
               <a
                 class="proof__card-bar-link"
                 href={entry.url}
@@ -57,6 +58,7 @@ import {
               tabindex="-1"
               aria-hidden="true"
             >
+              <span class="proof__preview-scan" aria-hidden="true"></span>
               <picture>
                 <source srcset={entry.previewWebp} type="image/webp" />
                 <img
@@ -269,6 +271,14 @@ import {
     color: var(--color-accent);
   }
 
+  .proof__card-live {
+    margin-inline-start: auto;
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    color: var(--color-accent-hot);
+    animation: proof-live-blink 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
   .proof__card-bar-link {
     font-size: var(--text-xs);
     letter-spacing: 0.06em;
@@ -284,10 +294,28 @@ import {
   }
 
   .proof__preview {
+    position: relative;
     display: block;
     border-block-end: var(--border);
     background: #0a0a0a;
     text-decoration: none;
+    overflow: clip;
+  }
+
+  .proof__preview-scan {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 215, 0, 0.55),
+      transparent
+    );
+    z-index: 1;
+    animation: proof-feed-scan 4.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    pointer-events: none;
   }
 
   .proof__preview-img {
@@ -303,6 +331,41 @@ import {
   .proof__preview:hover .proof__preview-img,
   .proof__preview:focus-visible .proof__preview-img {
     opacity: 1;
+  }
+
+  @keyframes proof-live-blink {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes proof-feed-scan {
+    0% {
+      transform: translateY(0);
+      opacity: 0.2;
+    }
+    40% {
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateY(18rem);
+      opacity: 0.1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .proof__card-live,
+    .proof__preview-scan {
+      animation: none;
+    }
+
+    .proof__preview-scan {
+      display: none;
+    }
   }
 
   .proof__card-body {

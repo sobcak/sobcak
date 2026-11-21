@@ -343,6 +343,7 @@
 
   .locked-demo__field input {
     width: 100%;
+    min-height: 2.85rem;
     padding: var(--space-2) var(--space-3);
     border: var(--border);
     background: #050505;
@@ -409,6 +410,7 @@
 
   .locked-demo__commit {
     margin-block-start: var(--space-1);
+    min-height: 3.1rem;
     padding: var(--space-3) var(--space-4);
     border: var(--border-active);
     background: transparent;
@@ -417,9 +419,11 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     text-align: center;
+    touch-action: manipulation;
     transition:
       color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .locked-demo__commit:hover:not(:disabled),
@@ -479,6 +483,14 @@
 
   .locked-demo.is-committed .locked-demo__preview {
     animation: locked-preview-flash 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo.is-committed .locked-demo__commit {
+    box-shadow: inset 0 0 0 1px var(--color-accent-hot);
+  }
+
+  .locked-demo.is-committing .locked-demo__log {
+    border-color: var(--color-accent);
   }
 
   .locked-demo__preview-eyebrow {
@@ -551,6 +563,43 @@
     }
   }
 
+  @media (max-width: 767px) {
+    .locked-demo__toggle {
+      width: 100%;
+      min-height: 3rem;
+      justify-content: flex-start;
+    }
+
+    .locked-demo__commit {
+      width: 100%;
+      font-size: var(--text-sm);
+      letter-spacing: 0.08em;
+    }
+
+    .locked-demo__log {
+      min-height: 6.5rem;
+    }
+
+    .locked-demo.is-committed .locked-demo__preview {
+      animation: locked-preview-flash-mobile 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  @keyframes locked-preview-flash-mobile {
+    0% {
+      opacity: 0.25;
+      filter: brightness(1.5);
+    }
+    55% {
+      opacity: 1;
+      filter: brightness(1.15);
+    }
+    100% {
+      opacity: 1;
+      filter: none;
+    }
+  }
+
   @media (min-width: 768px) {
     .locked-demo__grid {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -568,8 +617,9 @@
     .locked-demo__toggle-thumb,
     .locked-demo__commit,
     .locked-demo__preview {
-      animation: none;
+      animation: none !important;
       transition: none;
+      filter: none;
     }
   }
 </style>

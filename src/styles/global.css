@@ -1,4 +1,4 @@
-/* sobcak.cz — brutalist visual system */
+/* sobcak.cz — brutalist visual system + Monitor Session theatre */
 
 :root {
   /* Color */
@@ -39,6 +39,15 @@
   --page-pad: clamp(1rem, 0.75rem + 2vw, 2rem);
   --content-max: 72rem;
   --measure: 65ch;
+
+  /* Session theatre */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --session-wipe: 0.55s;
+  --session-snap: proximity;
+  --channel-chrome: rgba(212, 175, 55, 0.12);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 *,
@@ -55,6 +64,13 @@ html {
   background-color: var(--color-bg);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -169,6 +185,108 @@ small {
   width: min(100% - 2 * var(--page-pad), var(--content-max));
   margin-inline: auto;
   padding-block: var(--space-6);
+}
+
+/* ── Monitor Session: mobile scroll theatre ── */
+/* Snap only the hero boot frame — full-page y-snap fights expanding diagnostic beats. */
+@media (max-width: 767px) {
+  #top {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+}
+
+[data-channel-section] {
+  position: relative;
+}
+
+[data-channel-section]::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-accent) 20%,
+    var(--color-accent-hot) 50%,
+    var(--color-accent) 80%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: scaleX(0.4);
+  pointer-events: none;
+  z-index: 2;
+  transition:
+    opacity var(--session-wipe) var(--ease-out),
+    transform var(--session-wipe) var(--ease-out);
+}
+
+[data-channel-section].is-channel-active::before {
+  opacity: 0.85;
+  transform: scaleX(1);
+}
+
+[data-channel-section].is-channel-enter {
+  animation: channel-enter var(--session-wipe) var(--ease-out) both;
+}
+
+@keyframes channel-enter {
+  from {
+    filter: brightness(1.35) contrast(1.08);
+  }
+  to {
+    filter: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (max-width: 767px) {
+    [data-channel-section]::after {
+      content: '';
+      position: absolute;
+      inset-inline: var(--page-pad);
+      inset-block-start: 0;
+      height: 1px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--color-accent) 0 4px,
+        transparent 4px 10px
+      );
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 1;
+      animation: channel-scanline linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+
+  @keyframes channel-scanline {
+    from {
+      opacity: 0;
+      transform: translateY(0) scaleX(0.2);
+    }
+    to {
+      opacity: 0.45;
+      transform: translateY(0.5rem) scaleX(1);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-channel-section].is-channel-enter,
+  [data-channel-section]::before,
+  [data-channel-section]::after {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
+
+  [data-channel-section]::before {
+    opacity: 0;
+  }
 }
 
 /* Tablet+ */
