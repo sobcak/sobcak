@@ -15,7 +15,7 @@
 - Inline spans: always use explicit `&nbsp;` around amount/tier spans so Astro/HTML never collapses “o1 080 000Kč” or “smluvnígarance”
 - Post-launch hosting: `0 Kč/měs.` (with period); lowercase after em-dashes (“po dokončení”, “web i uzamčený”)
 - Footer: “// Na architekturu dohlíží Oliver”; omit IČO until a real number exists
-- CatTailNav (ALEX): fades out on scroll with `pointer-events: none` so it never overlaps content
+- CatTailNav (ALEX): geometric/ASCII session-operator portrait; fades out on scroll with `pointer-events: none` so it never overlaps content; gold eyes track pointer in the open overlay (`prefers-reduced-motion`: eyes lit, pupils static)
 
 ## Experience model — Monitor Session
 - Mobile-first **session** metaphor: CRT boot → channel switcher (Alex) → diagnostic beats → recommendation theatre

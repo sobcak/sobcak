@@ -1,7 +1,7 @@
 ---
 /**
- * Pullable geometric cat-tail nav ("Alex" / Stray-inspired).
- * pointerdown + Escape; full-screen #000 overlay; gold-igniting eyes.
+ * Alex channel switcher — professional geometric/ASCII operator portrait.
+ * Click + Escape; full-screen #000 overlay; gold eyes track pointer while open.
  */
 const links = [
   {
@@ -59,48 +59,59 @@ const links = [
       aria-hidden="true"
       focusable="false"
     >
-      <!-- Geometric Stray-style tail + corner frame -->
-      <path
-        class="cat-tail-nav__frame"
-        d="M8 8 H64 V28 H28 V52"
+      <!-- Framed operator badge -->
+      <rect
+        x="10"
+        y="6"
+        width="52"
+        height="22"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.5"
+        stroke-width="1.25"
       />
       <text
-        x="12"
-        y="22"
-        class="cat-tail-nav__ascii"
+        x="36"
+        y="21"
+        text-anchor="middle"
         font-family="ui-monospace, monospace"
         font-size="8"
+        letter-spacing="0.12em"
         fill="currentColor"
-        opacity="0.55">┌──┐</text>
+        opacity="0.9">ALEX</text>
+      <!-- Spine from badge into controlled S-curve -->
       <path
         class="cat-tail-nav__curve"
-        d="M28 52
-           C 34 68, 50 74, 54 92
-           C 58 112, 42 124, 36 138
-           C 32 148, 38 154, 46 152"
+        d="M36 28
+           V 46
+           C 36 58, 52 66, 54 84
+           C 56 104, 40 116, 34 132
+           C 30 142, 36 150, 46 152"
         fill="none"
         stroke="currentColor"
-        stroke-width="3"
+        stroke-width="2.5"
         stroke-linecap="square"
         stroke-linejoin="miter"
       />
+      <!-- Sparse hatch ticks along the spine -->
+      <g class="cat-tail-nav__hatch" opacity="0.4" stroke="currentColor" stroke-width="1">
+        <path d="M40 56 H48" />
+        <path d="M48 72 H56" />
+        <path d="M48 92 H56" />
+        <path d="M36 112 H44" />
+        <path d="M32 128 H40" />
+      </g>
       <path
         class="cat-tail-nav__tip"
-        d="M46 152 L54 146 L50 156 Z"
+        d="M46 152 L55 145 L51 156 Z"
         fill="currentColor"
       />
       <text
-        x="40"
-        y="100"
-        class="cat-tail-nav__ascii"
+        x="18"
+        y="150"
         font-family="ui-monospace, monospace"
         font-size="7"
         fill="currentColor"
-        opacity="0.45"
-        transform="rotate(18 40 100)">│││</text>
+        opacity="0.35">░▒</text>
     </svg>
   </button>
 
@@ -112,89 +123,168 @@ const links = [
     inert
   >
     <div class="cat-tail-nav__panel">
-      <div class="cat-tail-nav__silhouette" aria-hidden="true">
-        <pre class="cat-tail-nav__ascii-cat">
-    /\___/\
-   (  o o  )_
-   /   ▽   \
-  /|  ___  |\
- / | (   ) | \
-/  |  |||  |  \
-   |  |||  |
-   \  \_/  /
-    \_____/
-   looking back…
-        </pre>
+      <div class="cat-tail-nav__silhouette">
         <svg
           class="cat-tail-nav__alex"
-          viewBox="0 0 280 320"
+          viewBox="0 0 280 340"
           xmlns="http://www.w3.org/2000/svg"
           role="img"
-          aria-label="Alex — silueta kočky hledící přes rameno"
+          aria-label="Alex — operátor session, silueta kočky hledící přes rameno"
+          data-alex-portrait
         >
-          <!-- Back / shoulder mass -->
-          <path
-            d="M40 300
-               C 50 220, 70 150, 110 110
-               C 130 90, 155 78, 175 85
-               C 210 95, 235 130, 248 180
-               C 258 220, 255 270, 250 300
-               Z"
-            fill="#111"
+          <defs>
+            <clipPath id="alex-body-clip">
+              <path
+                d="M42 318
+                   C 52 230, 72 158, 112 118
+                   C 132 98, 158 86, 180 90
+                   C 214 96, 240 128, 252 178
+                   C 262 220, 258 270, 252 318
+                   Z"
+              />
+            </clipPath>
+            <pattern
+              id="alex-hatch"
+              patternUnits="userSpaceOnUse"
+              width="8"
+              height="10"
+            >
+              <text
+                x="0"
+                y="8"
+                font-family="ui-monospace, monospace"
+                font-size="8"
+                fill="#D4AF37"
+                fill-opacity="0.22">░</text>
+            </pattern>
+          </defs>
+
+          <!-- Monitor frame around portrait -->
+          <rect
+            x="12"
+            y="12"
+            width="256"
+            height="300"
+            fill="none"
             stroke="#222"
             stroke-width="1"
           />
-          <!-- Head turned over shoulder -->
+          <rect
+            x="18"
+            y="18"
+            width="244"
+            height="288"
+            fill="#050505"
+            stroke="#333"
+            stroke-width="1"
+          />
+
+          <!-- Shoulder / back mass -->
           <path
-            d="M155 95
-               C 145 55, 165 28, 195 32
-               C 225 36, 245 60, 238 95
-               C 232 125, 200 135, 170 120
-               C 160 114, 155 105, 155 95
+            d="M42 318
+               C 52 230, 72 158, 112 118
+               C 132 98, 158 86, 180 90
+               C 214 96, 240 128, 252 178
+               C 262 220, 258 270, 252 318
+               Z"
+            fill="#111"
+            stroke="#2a2a2a"
+            stroke-width="1"
+          />
+          <rect
+            x="42"
+            y="118"
+            width="210"
+            height="200"
+            fill="url(#alex-hatch)"
+            clip-path="url(#alex-body-clip)"
+            opacity="0.85"
+          />
+
+          <!-- Head looking over shoulder -->
+          <path
+            d="M158 108
+               C 148 62, 168 30, 200 34
+               C 232 38, 252 64, 246 102
+               C 240 134, 208 146, 176 130
+               C 164 122, 158 116, 158 108
                Z"
             fill="#0a0a0a"
             stroke="#333"
             stroke-width="1"
           />
-          <!-- Ears -->
-          <path d="M168 48 L175 18 L190 52 Z" fill="#0a0a0a" stroke="#333" />
-          <path d="M210 42 L230 14 L235 55 Z" fill="#0a0a0a" stroke="#333" />
-          <!-- Looking-back cheek / muzzle edge -->
+          <!-- Ears — sharp geometric -->
+          <path d="M172 52 L180 18 L196 56 Z" fill="#0a0a0a" stroke="#333" stroke-width="1" />
+          <path d="M216 46 L238 14 L244 58 Z" fill="#0a0a0a" stroke="#333" stroke-width="1" />
+          <path d="M176 50 L182 28 L192 54" fill="none" stroke="#222" stroke-width="1" />
+          <path d="M220 44 L234 24 L238 54" fill="none" stroke="#222" stroke-width="1" />
+
+          <!-- Muzzle / cheek edge -->
           <path
-            d="M200 100 C 215 108, 225 112, 228 100"
+            d="M204 112 C 218 120, 230 124, 234 110"
             fill="none"
             stroke="#222"
             stroke-width="1"
           />
-          <!-- Eyes — ignite gold when open -->
-          <g class="cat-tail-nav__eyes">
-            <ellipse
-              class="cat-tail-nav__eye cat-tail-nav__eye--l"
-              cx="188"
-              cy="72"
-              rx="7"
-              ry="5"
-              fill="#FFD700"
-            />
-            <ellipse
-              class="cat-tail-nav__eye cat-tail-nav__eye--r"
-              cx="214"
-              cy="70"
-              rx="7"
-              ry="5"
-              fill="#FFD700"
-            />
-            <ellipse cx="188" cy="72" rx="2" ry="4" fill="#000" />
-            <ellipse cx="214" cy="70" rx="2" ry="4" fill="#000" />
+          <!-- Nose tip -->
+          <path d="M224 118 L228 114 L232 118 Z" fill="#222" />
+
+          <!-- Eyes: sclera + tracking pupils -->
+          <g class="cat-tail-nav__eyes" data-alex-eyes>
+            <g class="cat-tail-nav__eye" data-alex-eye data-eye-cx="192" data-eye-cy="78">
+              <ellipse
+                class="cat-tail-nav__sclera"
+                cx="192"
+                cy="78"
+                rx="9"
+                ry="6.5"
+                fill="#FFD700"
+              />
+              <circle
+                class="cat-tail-nav__pupil"
+                data-alex-pupil
+                cx="192"
+                cy="78"
+                r="3.2"
+                fill="#000000"
+              />
+            </g>
+            <g class="cat-tail-nav__eye" data-alex-eye data-eye-cx="220" data-eye-cy="76">
+              <ellipse
+                class="cat-tail-nav__sclera"
+                cx="220"
+                cy="76"
+                rx="9"
+                ry="6.5"
+                fill="#FFD700"
+              />
+              <circle
+                class="cat-tail-nav__pupil"
+                data-alex-pupil
+                cx="220"
+                cy="76"
+                r="3.2"
+                fill="#000000"
+              />
+            </g>
           </g>
-          <!-- ASCII overlay strokes -->
+
+          <!-- Operator caption -->
           <text
-            x="48"
-            y="250"
+            x="28"
+            y="292"
             fill="#D4AF37"
-            fill-opacity="0.35"
+            fill-opacity="0.55"
             font-family="ui-monospace, monospace"
-            font-size="10">▓▒░  ALEX  ░▒▓</text>
+            font-size="9"
+            letter-spacing="0.08em">▓▒░ ALEX ░▒▓</text>
+          <text
+            x="28"
+            y="328"
+            fill="#888888"
+            font-family="ui-monospace, monospace"
+            font-size="9"
+            letter-spacing="0.1em">// ALEX · SESSION OPERATOR</text>
         </svg>
       </div>
 
@@ -249,6 +339,10 @@ const links = [
   } from '../utils/sessionBus';
   import { openContactForm, openDiagnosticQuiz } from '../utils/diagnosticBus';
 
+  function prefersReducedMotion(): boolean {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
   function initCatTailNav() {
     const root = document.querySelector<HTMLElement>('[data-cat-tail-nav]');
     if (!root || root.dataset.bound === '1') return;
@@ -257,21 +351,22 @@ const links = [
     const trigger = root.querySelector<HTMLButtonElement>('#cat-tail-trigger');
     const overlay = root.querySelector<HTMLElement>('#cat-tail-overlay');
     const closeBtn = root.querySelector<HTMLButtonElement>('[data-cat-tail-close]');
+    const portrait = root.querySelector<SVGSVGElement>('[data-alex-portrait]');
+    const eyes = Array.from(root.querySelectorAll<SVGGElement>('[data-alex-eye]'));
     if (!trigger || !overlay) return;
 
     let open = false;
     let lastFocus: HTMLElement | null = null;
+    let eyeRaf = 0;
+    let pendingPointer: { x: number; y: number } | null = null;
     const FADE_START = 24;
     const FADE_END = 220;
+    const MAX_PUPIL = 3.6;
 
     const syncActiveChannel = (id: ChannelId) => {
       root.querySelectorAll<HTMLAnchorElement>('[data-channel]').forEach((link) => {
-        // Form view maps to kontakt channel; diagnostic section covers both
         const linkChannel = link.dataset.channel;
-        const active =
-          linkChannel === id ||
-          (id === 'kontakt' && linkChannel === 'kontakt') ||
-          (id === 'diagnostic' && linkChannel === 'diagnostic');
+        const active = linkChannel === id;
         link.classList.toggle('is-active-channel', active);
         if (active) link.setAttribute('aria-current', 'true');
         else link.removeAttribute('aria-current');
@@ -279,6 +374,75 @@ const links = [
     };
 
     subscribeChannelEnter(({ id }) => syncActiveChannel(id));
+
+    const resetPupils = () => {
+      eyes.forEach((eye) => {
+        const pupil = eye.querySelector<SVGCircleElement>('[data-alex-pupil]');
+        const cx = Number(eye.dataset.eyeCx);
+        const cy = Number(eye.dataset.eyeCy);
+        if (!pupil || !Number.isFinite(cx) || !Number.isFinite(cy)) return;
+        pupil.setAttribute('cx', String(cx));
+        pupil.setAttribute('cy', String(cy));
+      });
+    };
+
+    const applyPupils = (clientX: number, clientY: number) => {
+      if (!portrait || prefersReducedMotion()) return;
+      const ctm = portrait.getScreenCTM();
+      if (!ctm) return;
+      const inv = ctm.inverse();
+      const pt = portrait.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const local = pt.matrixTransform(inv);
+
+      eyes.forEach((eye) => {
+        const pupil = eye.querySelector<SVGCircleElement>('[data-alex-pupil]');
+        const cx = Number(eye.dataset.eyeCx);
+        const cy = Number(eye.dataset.eyeCy);
+        if (!pupil || !Number.isFinite(cx) || !Number.isFinite(cy)) return;
+
+        let dx = local.x - cx;
+        let dy = local.y - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const scale = Math.min(1, MAX_PUPIL / dist);
+        dx *= scale;
+        dy *= scale;
+        // Slight vertical squash so pupils stay inside elliptical sclera
+        dy *= 0.72;
+        pupil.setAttribute('cx', String(cx + dx));
+        pupil.setAttribute('cy', String(cy + dy));
+      });
+    };
+
+    const flushEyes = () => {
+      eyeRaf = 0;
+      if (!pendingPointer || !open) return;
+      applyPupils(pendingPointer.x, pendingPointer.y);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!open || prefersReducedMotion()) return;
+      pendingPointer = { x: event.clientX, y: event.clientY };
+      if (!eyeRaf) eyeRaf = requestAnimationFrame(flushEyes);
+    };
+
+    const stopEyeTracking = () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      if (eyeRaf) {
+        cancelAnimationFrame(eyeRaf);
+        eyeRaf = 0;
+      }
+      pendingPointer = null;
+      resetPupils();
+    };
+
+    const startEyeTracking = () => {
+      resetPupils();
+      if (prefersReducedMotion()) return;
+      // Window-level so tracking still works over the ALEX trigger hit-target
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+    };
 
     const syncScrollFade = () => {
       if (open) {
@@ -290,7 +454,6 @@ const links = [
 
       const y = window.scrollY || document.documentElement.scrollTop || 0;
       const t = Math.min(1, Math.max(0, (y - FADE_START) / (FADE_END - FADE_START)));
-      // Keep a usable residual hit target on mobile after fade
       const floor = window.matchMedia('(max-width: 767px)').matches ? 0.28 : 0;
       const opacity = Math.max(floor, 1 - t);
       trigger.style.opacity = String(opacity);
@@ -316,6 +479,7 @@ const links = [
       if (next) {
         overlay.removeAttribute('inert');
         lastFocus = document.activeElement as HTMLElement | null;
+        startEyeTracking();
         requestAnimationFrame(() => {
           const active = overlay.querySelector<HTMLElement>(
             '.cat-tail-nav__link.is-active-channel',
@@ -324,6 +488,7 @@ const links = [
           (active ?? firstLink ?? closeBtn)?.focus();
         });
       } else {
+        stopEyeTracking();
         overlay.setAttribute('inert', '');
         syncScrollFade();
         if (trigger.getAttribute('aria-hidden') !== 'true') {
@@ -338,7 +503,6 @@ const links = [
 
     const toggle = () => setOpen(!open);
 
-    // Click/keyboard only — avoids pointerdown+click double-toggle on some agents
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
       if (trigger.style.pointerEvents === 'none') return;
@@ -440,7 +604,7 @@ const links = [
   .cat-tail-nav__tail {
     width: 100%;
     height: auto;
-    transform-origin: 40% 10%;
+    transform-origin: 50% 8%;
     animation: tail-sway 4.5s var(--ease-out) infinite;
     transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   }
@@ -448,7 +612,7 @@ const links = [
   .cat-tail-nav__trigger:hover .cat-tail-nav__tail,
   .cat-tail-nav__trigger[aria-expanded='true'] .cat-tail-nav__tail {
     color: var(--color-accent-hot);
-    transform: translateY(0.35rem) rotate(4deg);
+    transform: translateY(0.25rem) rotate(3deg);
   }
 
   .cat-tail-nav__overlay {
@@ -484,23 +648,11 @@ const links = [
     margin-inline: auto;
   }
 
-  .cat-tail-nav__ascii-cat {
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-start: 0;
-    margin: 0;
-    font-size: var(--text-xs);
-    line-height: 1.2;
-    color: #d4af37;
-    opacity: 0.28;
-    white-space: pre;
-    pointer-events: none;
-  }
-
   .cat-tail-nav__alex {
     width: min(100%, 17rem);
     height: auto;
     margin-inline: auto;
+    display: block;
   }
 
   .cat-tail-nav__eyes {
@@ -514,6 +666,10 @@ const links = [
   .cat-tail-nav.is-open .cat-tail-nav__eyes {
     opacity: 1;
     filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px rgba(255, 215, 0, 0.45));
+  }
+
+  .cat-tail-nav__pupil {
+    transition: none;
   }
 
   .cat-tail-nav__menu {
@@ -636,6 +792,11 @@ const links = [
 
     .cat-tail-nav.is-open .cat-tail-nav__overlay {
       opacity: 1;
+    }
+
+    .cat-tail-nav.is-open .cat-tail-nav__eyes {
+      opacity: 1;
+      filter: none;
     }
   }
 </style>
