@@ -1,0 +1,369 @@
+---
+/**
+ * Pricing architecture (#cenik): shared Astro core + scope-scaled tiers +
+ * optional post-launch hosting bar.
+ */
+
+const tiers = [
+  {
+    id: 'TIER_01',
+    name: 'Tier 01: Konverzní základ',
+    price: '18\u00A0000\u00A0Kč',
+    priceMeta: 'Pevná cena',
+    highlight: false,
+    points: [
+      'Jedna stránka, jeden cíl – poptávka',
+      'Načtení do 0,8\u00A0s na mobilu',
+      'Lokální viditelnost ve vyhledávačích',
+      '100% vlastnictví zdrojového kódu',
+    ],
+  },
+  {
+    id: 'TIER_02',
+    name: 'Tier 02: Komerční architektura',
+    price: '32\u00A0000\u00A0Kč',
+    priceMeta: '22\u00A0000\u00A0Kč Founding Partner – 5 míst',
+    highlight: true,
+    points: [
+      'Vícestránkový web podle ověřené stavby design-home.cz',
+      'Struktura, která vede návštěvníka k\u00A0poptávce',
+      'Uzamčený editor: ceny a\u00A0texty za 30\u00A0vteřin, vzhled nerozbijete',
+      'Garance PageSpeed 90+ (důkaz 100/100 na design-home.cz)',
+    ],
+  },
+  {
+    id: 'TIER_03',
+    name: 'Tier 03: Vlajkový systém',
+    price: 'od 55\u00A0000\u00A0Kč',
+    priceMeta: 'Cena dle rozsahu',
+    highlight: false,
+    points: [
+      'Vlastní kalkulačky a\u00A0interaktivní nástroje pro poptávky',
+      'Audit konverze a\u00A0prioritní termíny',
+      'Architektura na míru pro dominantní pozici v\u00A0koridoru',
+      'Stejné jádro rychlosti a\u00A0bezpečnosti jako Tier 01 a\u00A002',
+    ],
+  },
+] as const;
+
+const hosting = [
+  {
+    id: 'A',
+    price: '0\u00A0Kč/měs.',
+    copy:
+      '100% vlastnictví a\u00A0předání na váš účet – po dokončení obdržíte kompletní zdrojový kód (.zip) a\u00A0web nasadíme na váš vlastní hosting. Nulové měsíční poplatky nám.',
+  },
+  {
+    id: 'B',
+    price: '500\u00A0Kč/měs.',
+    copy:
+      'Managed Edge Hosting – web i\u00A0uzamčený editor běží na naší infrastruktuře. Řešíme DNS, SSL, zálohy i\u00A0okamžité zveřejnění změn bez vašeho zásahu.',
+  },
+] as const;
+---
+
+<section id="cenik" class="tiers page" aria-labelledby="cenik-heading">
+  <header class="tiers__header">
+    <p class="meta tiers__meta">// CENÍK · ARCHITEKTURA · FOUNDING PARTNER</p>
+    <h2 id="cenik-heading" class="tiers__title">CENÍK &amp; ARCHITEKTURA</h2>
+  </header>
+
+  <div class="tiers__explainer surface">
+    <p>
+      Každý balíček stojí na stejném statickém jádru: načtení
+      za&nbsp;0,8&nbsp;s, nulová plocha k&nbsp;útoku a&nbsp;smluvní&nbsp;<strong
+        >garance PageSpeed 90+</strong
+      >
+      (na&nbsp;<a
+        href="https://design-home.cz"
+        target="_blank"
+        rel="noopener noreferrer">design-home.cz</a
+      >&nbsp;naměřeno 100/100). Cena se liší jen rozsahem – ne rychlostí ani
+      bezpečností.
+    </p>
+    <p class="tiers__founding">
+      Founding Partner (−10&nbsp;000&nbsp;Kč, 5&nbsp;míst) platí výhradně
+      pro Tier&nbsp;02 výměnou za veřejnou případovou studii a&nbsp;referenci
+      do&nbsp;14&nbsp;dnů od spuštění.
+    </p>
+  </div>
+
+  <ul class="tiers__grid" role="list">
+    {
+      tiers.map((tier) => (
+        <li>
+          <article
+            class:list={[
+              'tiers__card',
+              'surface',
+              { 'tiers__card--highlight': tier.highlight },
+            ]}
+            id={tier.id}
+            aria-labelledby={`${tier.id}-name`}
+          >
+            <p class="tiers__card-id meta">{tier.id}</p>
+            <h3 class="tiers__card-name" id={`${tier.id}-name`}>
+              {tier.name}
+            </h3>
+            <p class="tiers__card-price">{tier.price}</p>
+            <p class="tiers__card-meta meta">{tier.priceMeta}</p>
+            <ul class="tiers__card-points" role="list">
+              {tier.points.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+            <a
+              class="tiers__card-cta"
+              href="#kontakt"
+              data-open-contact
+              data-tier={tier.id}
+            >
+              Poptat {tier.id} →
+            </a>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+
+  <aside class="tiers__infra" aria-labelledby="infra-heading">
+    <h3 id="infra-heading" class="tiers__infra-title">
+      PROVOZ PO SPUŠTĚNÍ // HOSTING A&nbsp;SPRÁVA
+    </h3>
+    <ul class="tiers__infra-list" role="list">
+      {
+        hosting.map((opt) => (
+          <li class="tiers__infra-item">
+            <p class="tiers__infra-opt">
+              <span class="tiers__infra-letter">Varianta {opt.id}</span>
+              <span class="tiers__infra-price">{opt.price}</span>
+            </p>
+            <p class="tiers__infra-copy">{opt.copy}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </aside>
+</section>
+
+<style>
+  .tiers {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .tiers__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .tiers__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tiers__title {
+    letter-spacing: -0.03em;
+  }
+
+  .tiers__explainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    max-width: 56rem;
+  }
+
+  .tiers__explainer p {
+    max-width: 52rem;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+  }
+
+  .tiers__explainer code {
+    color: var(--color-accent-hot);
+    font-size: 0.95em;
+  }
+
+  .tiers__explainer strong {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .tiers__founding {
+    color: var(--color-meta);
+    border-block-start: var(--border);
+    padding-block-start: var(--space-3);
+  }
+
+  .tiers__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .tiers__card {
+    height: 100%;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .tiers__card--highlight {
+    border: 1px solid #d4af37;
+    background: rgba(212, 175, 55, 0.04);
+  }
+
+  .tiers__card-id {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tiers__card-name {
+    font-size: var(--text-lg);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .tiers__card-price {
+    font-size: var(--text-xl);
+    color: var(--color-accent-hot);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tiers__card-meta {
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+  }
+
+  .tiers__card-points {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-start: var(--space-1);
+    flex: 1;
+  }
+
+  .tiers__card-points li {
+    position: relative;
+    padding-inline-start: 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--color-meta);
+    line-height: 1.4;
+  }
+
+  .tiers__card-points li::before {
+    content: '>';
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-accent);
+  }
+
+  .tiers__card-cta {
+    align-self: start;
+    margin-block-start: var(--space-2);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-accent);
+    border: var(--border);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .tiers__card-cta:hover,
+  .tiers__card-cta:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent-hot);
+    background: rgba(212, 175, 55, 0.08);
+  }
+
+  .tiers__infra {
+    border: 1px solid #222222;
+    background: #000000;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    width: 100%;
+  }
+
+  .tiers__infra-title {
+    font-size: var(--text-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    line-height: 1.35;
+  }
+
+  .tiers__infra-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .tiers__infra-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-block-start: var(--space-3);
+    border-block-start: var(--border);
+  }
+
+  .tiers__infra-opt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .tiers__infra-letter {
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tiers__infra-price {
+    font-size: var(--text-sm);
+    color: var(--color-accent-hot);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tiers__infra-copy {
+    font-size: var(--text-sm);
+    color: var(--color-meta);
+    line-height: 1.55;
+    max-width: 62rem;
+  }
+
+  @media (min-width: 768px) {
+    .tiers__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .tiers__infra-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .tiers__infra-item {
+      border-block-start: none;
+      padding-block-start: 0;
+      padding-inline-start: var(--space-4);
+      border-inline-start: var(--border);
+    }
+
+    .tiers__infra-item:first-child {
+      padding-inline-start: 0;
+      border-inline-start: none;
+    }
+  }
+</style>

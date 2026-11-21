@@ -1,0 +1,217 @@
+---
+/**
+ * 5-Gate collaboration roadmap (#proces): contractual boundaries
+ * in a brutalist monospace timeline.
+ */
+
+const gates = [
+  {
+    id: '01',
+    title: 'DIAGNOSTIKA A\u00A0PEVNÁ SPECIFIKACE',
+    body:
+      'Písemná smlouva uzamyká rozsah, strukturu stránek a&nbsp;měřitelné cíle. Co není ve specifikaci, se fakturuje zvlášť – žádné tiché rozšiřování rozsahu.',
+  },
+  {
+    id: '02',
+    title: '50% ZÁLOHA A\u00A0PODKLADY',
+    body:
+      'Práce začíná až po připsání 50% nevratné zálohy. Na podklady máte 7&nbsp;dnů. Zpoždění na vaší straně neposouvá splatnost milníků – to chrání termín dodání.',
+  },
+  {
+    id: '03',
+    title: 'VÝVOJ NA UZAMČENÉM NÁHLEDU',
+    body:
+      'Stavíme v&nbsp;čistém kódu na privátním náhledu <code>client.sobcak.cz</code>. Vidíte průběh, veřejnost ne.',
+  },
+  {
+    id: '04',
+    title: 'REVIZNÍ OKNO (MAX. 2 KOLA)',
+    body:
+      'V&nbsp;ceně jsou dvě konsolidovaná kola revizí. Další změny se účtují 1&nbsp;500&nbsp;Kč/h. Jasný strop – bez nekonečného „ještě jedné drobnosti“.',
+  },
+  {
+    id: '05',
+    title: 'DOPLATEK 50% → PŘEDÁNÍ NEBO SPRÁVA',
+    body:
+      'Po doplatku 50% obdržíte kompletní zdrojový kód (.zip) a&nbsp;volíte: předání na vlastní hosting (0&nbsp;Kč/měs.), nebo Managed Edge Hosting (500&nbsp;Kč/měs.).',
+    note:
+      'Founding Partner (−10&nbsp;000&nbsp;Kč u&nbsp;Tier&nbsp;02): reference do&nbsp;14&nbsp;dnů od spuštění je férový standard. Bez ní se rozdíl doúčtuje – sleva stojí na veřejném důkazu.',
+  },
+] as const;
+---
+
+<section id="proces" class="roadmap page" aria-labelledby="proces-heading">
+  <header class="roadmap__header">
+    <p class="meta roadmap__meta">// PROCES · 5 BRAN · SMLUVNÍ HRANICE</p>
+    <h2 id="proces-heading" class="roadmap__title">PROCES SPOLUPRÁCE</h2>
+    <p class="roadmap__lede">
+      Pět bran. Žádné měkké deadliny, žádné tiché rozšiřování rozsahu – jen
+      pevné milníky, které chrání termín i&nbsp;cenu.
+    </p>
+  </header>
+
+  <ol class="roadmap__timeline" role="list">
+    {
+      gates.map((gate) => (
+        <li class="roadmap__gate surface" id={`gate-${gate.id}`}>
+          <div class="roadmap__rail" aria-hidden="true">
+            <span class="roadmap__node" />
+          </div>
+          <div class="roadmap__body">
+            <p class="roadmap__gate-id meta">
+              BRÁNA {gate.id}
+              <span class="roadmap__sep" aria-hidden="true">
+                {' // '}
+              </span>
+            </p>
+            <h3 class="roadmap__gate-title" set:html={gate.title} />
+            <p class="roadmap__gate-copy" set:html={gate.body} />
+            {'note' in gate && gate.note ? (
+              <p class="roadmap__gate-note" set:html={gate.note} />
+            ) : null}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .roadmap__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .roadmap__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .roadmap__title {
+    letter-spacing: -0.03em;
+  }
+
+  .roadmap__lede {
+    font-size: var(--text-lg);
+    line-height: 1.45;
+    max-width: 40rem;
+  }
+
+  .roadmap__timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+
+  .roadmap__gate {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-block-start: none;
+  }
+
+  .roadmap__gate:first-child {
+    border-block-start: var(--border);
+  }
+
+  .roadmap__rail {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-block-start: 0.35rem;
+  }
+
+  .roadmap__rail::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 50%;
+    top: 0.85rem;
+    bottom: calc(-1 * var(--space-4));
+    width: 1px;
+    background: #222222;
+    transform: translateX(-50%);
+  }
+
+  .roadmap__gate:last-child .roadmap__rail::before {
+    display: none;
+  }
+
+  .roadmap__node {
+    position: relative;
+    z-index: 1;
+    width: 0.65rem;
+    height: 0.65rem;
+    background: var(--color-accent);
+    border: 1px solid var(--color-accent-hot);
+    flex-shrink: 0;
+  }
+
+  .roadmap__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .roadmap__gate-id {
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-size: var(--text-xs);
+  }
+
+  .roadmap__sep {
+    color: var(--color-meta);
+  }
+
+  .roadmap__gate-title {
+    font-size: var(--text-base);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .roadmap__gate-copy {
+    font-size: var(--text-sm);
+    color: var(--color-meta);
+    line-height: 1.55;
+    max-width: 52rem;
+  }
+
+  .roadmap__gate-copy :global(code) {
+    color: var(--color-accent-hot);
+    font-size: 0.95em;
+  }
+
+  .roadmap__gate-note {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    line-height: 1.5;
+    max-width: 52rem;
+    padding: var(--space-3);
+    border: 1px solid var(--color-accent);
+    background: rgba(212, 175, 55, 0.05);
+  }
+
+  @media (min-width: 768px) {
+    .roadmap__gate {
+      grid-template-columns: 1.5rem 1fr;
+      gap: var(--space-6);
+      padding: var(--space-6);
+    }
+
+    .roadmap__gate-title {
+      font-size: var(--text-lg);
+    }
+  }
+</style>

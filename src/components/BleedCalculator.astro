@@ -1,0 +1,1415 @@
+---
+/**
+ * Unified #diagnostic ↔ #kontakt container.
+ * States: discrete quiz → results + cat-eye fine-tune → in-place contact form.
+ */
+
+const bottlenecks = [
+  {
+    id: 'stale',
+    label: 'Zastaralý vzhled, který působí levně',
+    value: 0.02,
+  },
+  {
+    id: 'slow',
+    label: 'Pomalé načítání na mobilu (nad 3\u00A0s)',
+    value: 0.015,
+  },
+  {
+    id: 'bounce',
+    label: 'Návštěvníci odcházejí bez poptávky',
+    value: 0.025,
+  },
+  {
+    id: 'none',
+    label: 'Web zatím nemám',
+    value: 0.03,
+  },
+] as const;
+
+const visitorBrackets = [
+  { id: 'v1', label: 'do 200', value: 125 },
+  { id: 'v2', label: '200 – 500', value: 350 },
+  { id: 'v3', label: '500 – 1\u00A0500', value: 1_000 },
+  { id: 'v4', label: '1\u00A0500 – 3\u00A0000', value: 2_250 },
+  { id: 'v5', label: '3\u00A0000+', value: 4_000 },
+] as const;
+
+const aovBrackets = [
+  { id: 'a1', label: 'do 5\u00A0000\u00A0Kč', value: 3_500 },
+  { id: 'a2', label: '5 – 15\u00A0000\u00A0Kč', value: 10_000 },
+  { id: 'a3', label: '15 – 30\u00A0000\u00A0Kč', value: 22_500 },
+  { id: 'a4', label: '30 – 60\u00A0000\u00A0Kč', value: 45_000 },
+  { id: 'a5', label: '60\u00A0000+\u00A0Kč', value: 80_000 },
+] as const;
+---
+
+<section
+  id="diagnostic"
+  class="bleed page"
+  aria-labelledby="diagnostic-heading"
+  data-bleed-calc
+  data-view="quiz"
+>
+  <header class="bleed__header">
+    <p class="meta bleed__meta" data-view-meta>// DIAGNOSTIKA · ROČNÍ ZTRÁTA · DOPORUČENÍ</p>
+    <h2 id="diagnostic-heading" class="bleed__title" data-view-title>DIAGNOSTIKA</h2>
+    <p class="bleed__lede" data-view-lede>
+      Spočítejte, kolik vás současný web stojí na&nbsp;ztracených zakázkách –
+      a&nbsp;který balíček tu díru v&nbsp;marži uzavře.
+    </p>
+  </header>
+
+  <!-- ─── Stage 1 + 2: Quiz / Results ─── -->
+  <div class="bleed__shell surface" data-panel="quiz">
+    <form class="bleed__form" data-bleed-form>
+      <fieldset class="bleed__step">
+        <legend class="bleed__step-label">
+          <span class="bleed__step-num">01</span>
+          Hlavní problém (P)
+        </legend>
+        <div class="bleed__options" role="radiogroup" aria-label="Hlavní problém webu">
+          {
+            bottlenecks.map((b) => (
+              <label class="bleed__option">
+                <input
+                  type="radio"
+                  name="bottleneck"
+                  value={String(b.value)}
+                  data-bleed-p
+                  data-quiz-answer="p"
+                />
+                <span class="bleed__option-body">
+                  <span class="bleed__option-label">{b.label}</span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="bleed__step">
+        <legend class="bleed__step-label">
+          <span class="bleed__step-num">02</span>
+          Parametry provozu
+        </legend>
+
+        <div class="bleed__bracket-block">
+          <p class="bleed__bracket-label">Měsíční návštěvnost (V)</p>
+          <div
+            class="bleed__options bleed__options--compact"
+            role="radiogroup"
+            aria-label="Měsíční návštěvnost"
+          >
+            {
+              visitorBrackets.map((b) => (
+                <label class="bleed__option bleed__option--compact">
+                  <input
+                    type="radio"
+                    name="visitorsBracket"
+                    value={String(b.value)}
+                    data-quiz-answer="v"
+                  />
+                  <span class="bleed__option-body">
+                    <span class="bleed__option-label">{b.label}</span>
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="bleed__bracket-block">
+          <p class="bleed__bracket-label">Průměrná hodnota zakázky</p>
+          <div
+            class="bleed__options bleed__options--compact"
+            role="radiogroup"
+            aria-label="Průměrná hodnota zakázky"
+          >
+            {
+              aovBrackets.map((b) => (
+                <label class="bleed__option bleed__option--compact">
+                  <input
+                    type="radio"
+                    name="aovBracket"
+                    value={String(b.value)}
+                    data-quiz-answer="aov"
+                  />
+                  <span class="bleed__option-body">
+                    <span class="bleed__option-label">{b.label}</span>
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <p class="bleed__skip-wrap">
+        <button type="button" class="bleed__skip" data-skip-diagnostic>
+          Přeskočit diagnostiku →
+        </button>
+      </p>
+
+      <!-- Stage 2: revealed once all three answers are set -->
+      <div class="bleed__results" data-results hidden>
+        <div class="bleed__step bleed__step--output" aria-live="polite">
+          <p class="bleed__step-label">
+            <span class="bleed__step-num">03</span>
+            Roční ztráta (X)
+          </p>
+          <p class="bleed__output">
+            Současný web vás připravuje přibližně o&nbsp;<span class="bleed__loss"
+              ><span data-bleed-x>0</span>&nbsp;Kč</span
+            >&nbsp;ročně – peníze, které mohly být v&nbsp;poptávkách, ne
+            v&nbsp;odchodech.
+          </p>
+          <p class="bleed__formula">
+            [ VZOREC: Roční ztráta (X) = měsíční návštěvnost (V) × koeficient ztráty
+            (P: 1,5&nbsp;% – 3,0&nbsp;% podle typu problému) × průměrná hodnota
+            zakázky × 12&nbsp;měsíců ]
+          </p>
+        </div>
+
+        <div class="bleed__step bleed__step--route" aria-live="polite">
+          <p class="bleed__step-label">
+            <span class="bleed__step-num">04</span>
+            Doporučený balíček
+          </p>
+          <p class="bleed__tier" data-bleed-tier></p>
+          <p class="bleed__upsell" data-bleed-upsell hidden></p>
+          <button type="button" class="bleed__cta" data-open-form-cta>
+            Poptat doporučený balíček →
+          </button>
+        </div>
+
+        <div class="bleed__fine-tune">
+          <p class="bleed__fine-tune-label meta">
+            // DOLADIT V A HODNOTU ZAKÁZKY · CAT-EYE
+          </p>
+
+          <div class="cat-slider" data-cat-slider="v">
+            <div class="cat-slider__head">
+              <span>Měsíční návštěvnost (V)</span>
+              <span class="cat-slider__value" data-bleed-v-label>300</span>
+            </div>
+            <div class="cat-slider__track">
+              <input
+                type="range"
+                name="visitors"
+                data-bleed-v
+                min="50"
+                max="5000"
+                step="10"
+                value="300"
+                aria-label="Měsíční návštěvnost — jemné doladění"
+              />
+              <svg
+                class="cat-slider__eye"
+                data-cat-eye
+                viewBox="0 0 28 22"
+                width="28"
+                height="22"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <ellipse cx="14" cy="11" rx="13" ry="10" fill="#FFD700" />
+                <ellipse
+                  class="cat-slider__pupil"
+                  data-cat-pupil
+                  cx="14"
+                  cy="11"
+                  rx="2"
+                  ry="7"
+                  fill="#000000"
+                />
+              </svg>
+            </div>
+            <div class="cat-slider__ends meta">
+              <span>50</span>
+              <span>5&nbsp;000</span>
+            </div>
+          </div>
+
+          <div class="cat-slider" data-cat-slider="aov">
+            <div class="cat-slider__head">
+              <span>Průměrná hodnota zakázky</span>
+              <span class="cat-slider__value" data-bleed-aov-label>15&nbsp;000&nbsp;Kč</span>
+            </div>
+            <div class="cat-slider__track">
+              <input
+                type="range"
+                name="aov"
+                data-bleed-aov
+                min="2000"
+                max="100000"
+                step="500"
+                value="15000"
+                aria-label="Průměrná hodnota zakázky — jemné doladění"
+              />
+              <svg
+                class="cat-slider__eye"
+                data-cat-eye
+                viewBox="0 0 28 22"
+                width="28"
+                height="22"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <ellipse cx="14" cy="11" rx="13" ry="10" fill="#FFD700" />
+                <ellipse
+                  class="cat-slider__pupil"
+                  data-cat-pupil
+                  cx="14"
+                  cy="11"
+                  rx="2"
+                  ry="7"
+                  fill="#000000"
+                />
+              </svg>
+            </div>
+            <div class="cat-slider__ends meta">
+              <span>2&nbsp;000&nbsp;Kč</span>
+              <span>100&nbsp;000&nbsp;Kč</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- ─── Stage 3: Contact form (in-place swap) ─── -->
+  <div
+    id="kontakt"
+    class="bleed__shell surface"
+    data-panel="form"
+    data-contact-terminal
+    hidden
+  >
+    <button type="button" class="bleed__back" data-back-diagnostic>
+      [ ← UPRAVIT DIAGNOSTIKU ]
+    </button>
+
+    <p
+      class="bleed__badge"
+      data-diag-badge
+      aria-live="polite"
+      hidden
+    >
+      Připojená diagnostika: roční ztráta&nbsp;<span class="bleed__loss"
+        ><span data-diag-bleed>—</span>&nbsp;Kč</span
+      >
+      &nbsp;|&nbsp;doporučený balíček:&nbsp;<span class="bleed__badge-tier" data-diag-tier>—</span>
+    </p>
+
+    <form class="contact__form" data-contact-form novalidate>
+      <input type="hidden" name="annualBleed" value="" data-hidden-bleed />
+      <input type="hidden" name="recommendedTier" value="" data-hidden-tier />
+      <input type="hidden" name="bottleneckP" value="" data-hidden-p />
+      <input type="hidden" name="monthlyVisitors" value="" data-hidden-v />
+      <input type="hidden" name="aov" value="" data-hidden-aov />
+
+      <div class="contact__fields">
+        <label class="contact__field">
+          <span class="contact__label">Jméno</span>
+          <input
+            type="text"
+            name="name"
+            autocomplete="name"
+            required
+            maxlength="120"
+          />
+        </label>
+
+        <label class="contact__field">
+          <span class="contact__label">Firma / IČO</span>
+          <input
+            type="text"
+            name="company"
+            autocomplete="organization"
+            required
+            maxlength="160"
+          />
+        </label>
+
+        <label class="contact__field">
+          <span class="contact__label">E-mail / telefon</span>
+          <input
+            type="text"
+            name="contact"
+            autocomplete="email"
+            required
+            maxlength="160"
+            inputmode="email"
+          />
+        </label>
+
+        <label class="contact__field">
+          <span class="contact__label">
+            Současný web <span class="meta">(volitelné)</span>
+          </span>
+          <input
+            type="url"
+            name="website"
+            autocomplete="url"
+            maxlength="300"
+            placeholder="https://"
+          />
+        </label>
+
+        <label class="contact__field contact__field--full">
+          <span class="contact__label">Co potřebujete vyřešit</span>
+          <textarea name="notes" rows="5" maxlength="4000" required></textarea>
+        </label>
+      </div>
+
+      <fieldset class="contact__hosting">
+        <legend class="contact__label">Provoz po spuštění</legend>
+        <div class="contact__hosting-options" role="radiogroup">
+          <label class="contact__hosting-opt">
+            <input type="radio" name="hosting" value="own" checked />
+            <span>Vlastní hosting (0&nbsp;Kč/měs.)</span>
+          </label>
+          <label class="contact__hosting-opt">
+            <input type="radio" name="hosting" value="managed" />
+            <span>Managed Edge Hosting (500&nbsp;Kč/měs.)</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <label class="contact__accept">
+        <input type="checkbox" name="acceptGates" value="1" required />
+        <span>
+          Souhlasím s&nbsp;procesem 5&nbsp;bran spolupráce
+          (<a href="#proces">#proces</a>) – záloha, lhůty a&nbsp;rozsah
+          jsou závazné.
+        </span>
+      </label>
+
+      <div class="contact__actions">
+        <button type="submit" class="contact__submit" data-contact-submit>
+          Odeslat poptávku →
+        </button>
+        <p
+          class="contact__status meta"
+          data-contact-status
+          role="status"
+          aria-live="polite"
+        ></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .bleed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .bleed__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .bleed__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bleed__title {
+    letter-spacing: -0.03em;
+  }
+
+  .bleed__lede {
+    font-size: var(--text-lg);
+    line-height: 1.45;
+    max-width: 40rem;
+  }
+
+  .bleed__shell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    max-width: 48rem;
+  }
+
+  .bleed__shell[hidden] {
+    display: none;
+  }
+
+  .bleed__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .bleed__step {
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .bleed__step-label {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    padding: 0;
+    white-space: nowrap;
+  }
+
+  .bleed__step-num {
+    color: var(--color-meta);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bleed__bracket-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .bleed__bracket-label {
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    max-width: none;
+  }
+
+  .bleed__options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .bleed__options--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bleed__option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    padding: var(--space-3);
+    border: var(--border);
+    cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+
+  .bleed__option:has(input:checked) {
+    border-color: var(--color-accent);
+    background: rgba(212, 175, 55, 0.06);
+  }
+
+  .bleed__option input {
+    margin-block-start: 0.2em;
+    accent-color: var(--color-accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .bleed__option-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .bleed__option-label {
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+
+  .bleed__option--compact {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .bleed__option--compact .bleed__option-label {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bleed__skip-wrap {
+    max-width: none;
+  }
+
+  .bleed__skip {
+    border: none;
+    padding: 0;
+    color: var(--color-meta);
+    font-size: var(--text-sm);
+    letter-spacing: 0.04em;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    background: transparent;
+  }
+
+  .bleed__skip:hover,
+  .bleed__skip:focus-visible {
+    color: var(--color-accent-hot);
+  }
+
+  .bleed__results[hidden] {
+    display: none;
+  }
+
+  .bleed__results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block-start: var(--space-2);
+    border-block-start: var(--border);
+  }
+
+  .bleed__output {
+    font-size: var(--text-lg);
+    line-height: 1.45;
+    max-width: 42rem;
+    color: var(--color-fg);
+  }
+
+  .bleed__loss {
+    color: var(--color-loss);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .bleed__formula {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: #888888;
+    max-width: 56rem;
+  }
+
+  .bleed__tier {
+    font-size: var(--text-base);
+    line-height: 1.45;
+    color: var(--color-fg);
+    max-width: 42rem;
+  }
+
+  .bleed__upsell {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-accent);
+    max-width: 42rem;
+    padding: var(--space-3);
+    border: 1px solid var(--color-accent);
+    background: rgba(212, 175, 55, 0.05);
+  }
+
+  .bleed__upsell[hidden] {
+    display: none;
+  }
+
+  .bleed__cta {
+    align-self: start;
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: var(--border-active);
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
+  }
+
+  .bleed__cta:hover,
+  .bleed__cta:focus-visible {
+    color: var(--color-accent-hot);
+    background: rgba(212, 175, 55, 0.08);
+  }
+
+  .bleed__fine-tune {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-block-start: var(--space-2);
+  }
+
+  .bleed__fine-tune-label {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Cat-eye range sliders ── */
+  .cat-slider {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .cat-slider__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+  }
+
+  .cat-slider__value {
+    color: var(--color-accent-hot);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cat-slider__track {
+    position: relative;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .cat-slider__track input[type='range'] {
+    width: 100%;
+    appearance: none;
+    height: 2px;
+    background: #222;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .cat-slider__track input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 28px;
+    height: 22px;
+    background: transparent;
+    border: none;
+    cursor: grab;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cat-slider__track input[type='range']::-moz-range-thumb {
+    width: 28px;
+    height: 22px;
+    background: transparent;
+    border: none;
+    cursor: grab;
+  }
+
+  .cat-slider__track input[type='range']:focus-visible {
+    outline: var(--border-active);
+    outline-offset: 4px;
+  }
+
+  .cat-slider__eye {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 28px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.35));
+    transition: filter 120ms ease;
+  }
+
+  .cat-slider__track:has(input:active) .cat-slider__eye {
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.55));
+  }
+
+  .cat-slider__ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xs);
+  }
+
+  /* ── Form panel ── */
+  .bleed__back {
+    align-self: start;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: var(--color-meta);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bleed__back:hover,
+  .bleed__back:focus-visible {
+    color: var(--color-accent-hot);
+  }
+
+  .bleed__badge {
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    color: var(--color-fg);
+    border: 1px solid var(--color-border);
+    background: rgba(245, 245, 245, 0.04);
+    padding: var(--space-3);
+    max-width: none;
+  }
+
+  .bleed__badge[hidden] {
+    display: none;
+  }
+
+  .bleed__badge-tier {
+    color: var(--color-accent-hot);
+    font-weight: 700;
+  }
+
+  .contact__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .contact__fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .contact__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .contact__label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .contact__field input,
+  .contact__field textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    min-height: 2.75rem;
+  }
+
+  .contact__field textarea {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .contact__hosting {
+    margin: 0;
+    padding: var(--space-3);
+    border: var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .contact__hosting-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .contact__hosting-opt {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    padding: var(--space-3);
+    border: var(--border);
+    cursor: pointer;
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+
+  .contact__hosting-opt:has(input:checked) {
+    border-color: var(--color-accent);
+    background: rgba(212, 175, 55, 0.06);
+  }
+
+  .contact__hosting-opt input {
+    margin-block-start: 0.2em;
+    accent-color: var(--color-accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .contact__accept {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--color-meta);
+    cursor: pointer;
+  }
+
+  .contact__accept input {
+    margin-block-start: 0.2em;
+    accent-color: var(--color-accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .contact__submit {
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: var(--border-active);
+    padding: var(--space-2) var(--space-3);
+    background: transparent;
+  }
+
+  .contact__submit:hover,
+  .contact__submit:focus-visible {
+    color: var(--color-accent-hot);
+    background: rgba(212, 175, 55, 0.08);
+  }
+
+  .contact__submit:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+
+  .contact__status {
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+  }
+
+  .contact__status[data-state='ok'] {
+    color: var(--color-accent-hot);
+  }
+
+  .contact__status[data-state='err'] {
+    color: var(--color-meta);
+  }
+
+  @media (min-width: 768px) {
+    .bleed__options {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .bleed__options--compact {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .contact__fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contact__field--full {
+      grid-column: 1 / -1;
+    }
+
+    .contact__hosting-options {
+      flex-direction: row;
+    }
+
+    .contact__hosting-opt {
+      flex: 1;
+    }
+  }
+</style>
+
+<script>
+  import {
+    dispatchDiagnostic,
+    subscribeOpenContactForm,
+    subscribeOpenDiagnosticQuiz,
+    openContactForm,
+  } from '../utils/diagnosticBus';
+  import type {
+    DiagnosticPayload,
+    DiagnosticView,
+    OpenFormDetail,
+  } from '../utils/diagnosticBus';
+
+  function formatCzk(value: number): string {
+    return new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(
+      Math.round(value),
+    );
+  }
+
+  function recommendTier(x: number): DiagnosticPayload['recommendedTier'] {
+    if (x < 150_000) return 'TIER_01';
+    if (x <= 500_000) return 'TIER_02';
+    return 'TIER_03';
+  }
+
+  const TIER_COPY: Record<DiagnosticPayload['recommendedTier'], string> = {
+    TIER_01: 'Tier 01: Konverzní základ – 18\u00A0000\u00A0Kč',
+    TIER_02:
+      'Tier 02: Komerční architektura – 22\u00A0000\u00A0Kč Founding Partner / 32\u00A0000\u00A0Kč standard',
+    TIER_03: 'Tier 03: Vlajkový systém – od 55\u00A0000\u00A0Kč',
+  };
+
+  const UPSELL_TIER_01 =
+    'Founding Partner: plný vícestránkový Tier\u00A002 s\u00A0uzamčeným editorem je jen o\u00A04\u00A0000\u00A0Kč dražší (22\u00A0000\u00A0Kč) – dokud zbývá volné místo z\u00A05.';
+
+  const HEADER = {
+    quiz: {
+      meta: '// DIAGNOSTIKA · ROČNÍ ZTRÁTA · DOPORUČENÍ',
+      title: 'DIAGNOSTIKA',
+      lede: 'Spočítejte, kolik vás současný web stojí na\u00A0ztracených zakázkách – a\u00A0který balíček tu díru v\u00A0marži uzavře.',
+    },
+    form: {
+      meta: '// KONTAKT · TERMINÁL · DIAGNOSTIKA',
+      title: 'KONTAKT',
+      lede: 'Pošlete stručný popis. Údaje z\u00A0diagnostiky se připojí automaticky – nemusíte je opisovat.',
+    },
+  } as const;
+
+  /** Pupil dilation: t=0 vertical slit → t=1 round dilated. */
+  function pupilRadii(t: number): { rx: number; ry: number } {
+    const n = Math.min(1, Math.max(0, t));
+    return {
+      rx: 1.4 + n * 5.2,
+      ry: 7.2 - n * 1.4,
+    };
+  }
+
+  function syncCatEye(
+    sliderRoot: HTMLElement,
+    input: HTMLInputElement,
+  ): void {
+    const eye = sliderRoot.querySelector<SVGElement>('[data-cat-eye]');
+    const pupil = sliderRoot.querySelector<SVGEllipseElement>('[data-cat-pupil]');
+    if (!eye || !pupil) return;
+
+    const min = Number(input.min) || 0;
+    const max = Number(input.max) || 1;
+    const val = Number(input.value) || min;
+    const t = max === min ? 0 : (val - min) / (max - min);
+
+    const thumbW = 28;
+    const trackW = sliderRoot.querySelector('.cat-slider__track')?.clientWidth ?? 0;
+    const travel = Math.max(0, trackW - thumbW);
+    const x = thumbW / 2 + t * travel;
+    eye.style.left = `${x}px`;
+
+    const { rx, ry } = pupilRadii(t);
+    pupil.setAttribute('rx', String(rx));
+    pupil.setAttribute('ry', String(ry));
+  }
+
+  function initBleedCalculator() {
+    const root = document.querySelector<HTMLElement>('[data-bleed-calc]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const quizPanel = root.querySelector<HTMLElement>('[data-panel="quiz"]');
+    const formPanel = root.querySelector<HTMLElement>('[data-panel="form"]');
+    const form = root.querySelector<HTMLFormElement>('[data-bleed-form]');
+    const results = root.querySelector<HTMLElement>('[data-results]');
+    const vInput = root.querySelector<HTMLInputElement>('[data-bleed-v]');
+    const aovInput = root.querySelector<HTMLInputElement>('[data-bleed-aov]');
+    const vLabel = root.querySelector<HTMLElement>('[data-bleed-v-label]');
+    const aovLabel = root.querySelector<HTMLElement>('[data-bleed-aov-label]');
+    const xEl = root.querySelector<HTMLElement>('[data-bleed-x]');
+    const tierEl = root.querySelector<HTMLElement>('[data-bleed-tier]');
+    const upsellEl = root.querySelector<HTMLElement>('[data-bleed-upsell]');
+    const metaEl = root.querySelector<HTMLElement>('[data-view-meta]');
+    const titleEl = root.querySelector<HTMLElement>('[data-view-title]');
+    const ledeEl = root.querySelector<HTMLElement>('[data-view-lede]');
+
+    const badge = root.querySelector<HTMLElement>('[data-diag-badge]');
+    const bleedEl = root.querySelector<HTMLElement>('[data-diag-bleed]');
+    const badgeTierEl = root.querySelector<HTMLElement>('[data-diag-tier]');
+    const contactForm = root.querySelector<HTMLFormElement>('[data-contact-form]');
+    const statusEl = root.querySelector<HTMLElement>('[data-contact-status]');
+    const submitBtn = root.querySelector<HTMLButtonElement>('[data-contact-submit]');
+    const hiddenBleed = root.querySelector<HTMLInputElement>('[data-hidden-bleed]');
+    const hiddenTier = root.querySelector<HTMLInputElement>('[data-hidden-tier]');
+    const hiddenP = root.querySelector<HTMLInputElement>('[data-hidden-p]');
+    const hiddenV = root.querySelector<HTMLInputElement>('[data-hidden-v]');
+    const hiddenAov = root.querySelector<HTMLInputElement>('[data-hidden-aov]');
+
+    if (
+      !quizPanel ||
+      !formPanel ||
+      !form ||
+      !results ||
+      !vInput ||
+      !aovInput ||
+      !vLabel ||
+      !aovLabel ||
+      !xEl ||
+      !tierEl ||
+      !upsellEl ||
+      !metaEl ||
+      !titleEl ||
+      !ledeEl ||
+      !badge ||
+      !bleedEl ||
+      !badgeTierEl ||
+      !contactForm ||
+      !statusEl ||
+      !submitBtn ||
+      !hiddenBleed ||
+      !hiddenTier ||
+      !hiddenP ||
+      !hiddenV ||
+      !hiddenAov
+    ) {
+      return;
+    }
+
+    let view: DiagnosticView = 'quiz';
+    let quizComplete = false;
+
+    const readP = (): number | null => {
+      const checked = form.querySelector<HTMLInputElement>(
+        'input[name="bottleneck"]:checked',
+      );
+      if (!checked) return null;
+      const p = Number(checked.value);
+      return Number.isFinite(p) && p > 0 ? p : null;
+    };
+
+    const quizAnswered = (): boolean => {
+      const p = form.querySelector('input[name="bottleneck"]:checked');
+      const v = form.querySelector('input[name="visitorsBracket"]:checked');
+      const a = form.querySelector('input[name="aovBracket"]:checked');
+      return Boolean(p && v && a);
+    };
+
+    const applyBanner = (payload: DiagnosticPayload | null, tierOverride?: string | null) => {
+      if (payload) {
+        hiddenBleed.value = String(Math.round(payload.annualBleed));
+        hiddenTier.value = tierOverride || payload.recommendedTier;
+        hiddenP.value = String(payload.bottleneckP);
+        hiddenV.value = String(payload.monthlyVisitors);
+        hiddenAov.value = String(payload.aov);
+        bleedEl.textContent = formatCzk(payload.annualBleed);
+        badgeTierEl.textContent = hiddenTier.value;
+        badge.hidden = false;
+        return;
+      }
+
+      if (tierOverride) {
+        hiddenBleed.value = '';
+        hiddenTier.value = tierOverride;
+        hiddenP.value = '';
+        hiddenV.value = '';
+        hiddenAov.value = '';
+        bleedEl.textContent = '—';
+        badgeTierEl.textContent = tierOverride;
+        badge.hidden = false;
+        return;
+      }
+
+      hiddenBleed.value = '';
+      hiddenTier.value = '';
+      hiddenP.value = '';
+      hiddenV.value = '';
+      hiddenAov.value = '';
+      badge.hidden = true;
+    };
+
+    const setView = (next: DiagnosticView, opts: OpenFormDetail = {}) => {
+      const showForm = next === 'form';
+      view = showForm ? 'form' : quizComplete ? 'results' : 'quiz';
+
+      quizPanel.hidden = showForm;
+      formPanel.hidden = !showForm;
+      root.dataset.view = view;
+
+      const h = showForm ? HEADER.form : HEADER.quiz;
+      metaEl.textContent = h.meta;
+      titleEl.textContent = h.title;
+      ledeEl.textContent = h.lede;
+
+      if (showForm) {
+        const state =
+          opts.preserveDiagnostic === false
+            ? null
+            : (window.__DIAGNOSTIC_STATE__ ?? null);
+        const tier = opts.tier ?? state?.recommendedTier ?? null;
+        applyBanner(state, tier);
+        history.replaceState(null, '', '#kontakt');
+        // Re-focus first field for keyboard users
+        contactForm.querySelector<HTMLInputElement>('input[name="name"]')?.focus({
+          preventScroll: true,
+        });
+      } else {
+        history.replaceState(null, '', '#diagnostic');
+        if (quizComplete) {
+          requestAnimationFrame(() => {
+            root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+              const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+              if (input) syncCatEye(el, input);
+            });
+          });
+        }
+      }
+    };
+
+    const syncResults = () => {
+      const bottleneckP = readP();
+      if (bottleneckP == null) return;
+
+      const monthlyVisitors = Math.min(
+        5000,
+        Math.max(50, Number(vInput.value) || 300),
+      );
+      const aov = Math.min(
+        100_000,
+        Math.max(2000, Number(aovInput.value) || 15_000),
+      );
+      const annualBleed = monthlyVisitors * bottleneckP * aov * 12;
+      const recommendedTier = recommendTier(annualBleed);
+
+      vLabel.textContent = formatCzk(monthlyVisitors);
+      aovLabel.textContent = `${formatCzk(aov)}\u00a0Kč`;
+      xEl.textContent = formatCzk(annualBleed);
+      tierEl.textContent = `Doporučení: ${TIER_COPY[recommendedTier]}.`;
+
+      if (recommendedTier === 'TIER_01') {
+        upsellEl.hidden = false;
+        upsellEl.textContent = UPSELL_TIER_01;
+      } else {
+        upsellEl.hidden = true;
+        upsellEl.textContent = '';
+      }
+
+      dispatchDiagnostic({
+        annualBleed,
+        recommendedTier,
+        bottleneckP,
+        monthlyVisitors,
+        aov,
+      });
+
+      root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+        const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+        if (input) syncCatEye(el, input);
+      });
+    };
+
+    const revealResultsIfReady = () => {
+      if (!quizAnswered()) {
+        quizComplete = false;
+        results.hidden = true;
+        return;
+      }
+
+      const vBracket = form.querySelector<HTMLInputElement>(
+        'input[name="visitorsBracket"]:checked',
+      );
+      const aovBracket = form.querySelector<HTMLInputElement>(
+        'input[name="aovBracket"]:checked',
+      );
+
+      // Seed fine-tune sliders from bracket midpoints (once on first complete)
+      if (results.hidden && vBracket && aovBracket) {
+        vInput.value = vBracket.value;
+        aovInput.value = aovBracket.value;
+      }
+
+      quizComplete = true;
+      results.hidden = false;
+      root.dataset.view = 'results';
+      syncResults();
+      requestAnimationFrame(() => {
+        root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+          const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+          if (input) syncCatEye(el, input);
+        });
+      });
+    };
+
+    form.addEventListener('change', (event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (
+        target?.name === 'visitorsBracket' ||
+        target?.name === 'aovBracket' ||
+        target?.name === 'bottleneck'
+      ) {
+        if (target.name === 'visitorsBracket') {
+          vInput.value = target.value;
+        }
+        if (target.name === 'aovBracket') {
+          aovInput.value = target.value;
+        }
+        revealResultsIfReady();
+        return;
+      }
+      if (quizComplete) syncResults();
+    });
+
+    form.addEventListener('input', (event) => {
+      const target = event.target as HTMLInputElement | null;
+      if (
+        target &&
+        (target.matches('[data-bleed-v]') || target.matches('[data-bleed-aov]')) &&
+        quizComplete
+      ) {
+        syncResults();
+      }
+    });
+
+    root.querySelector('[data-skip-diagnostic]')?.addEventListener('click', () => {
+      setView('form', { preserveDiagnostic: false, tier: null });
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    root.querySelector('[data-open-form-cta]')?.addEventListener('click', () => {
+      setView('form', { preserveDiagnostic: true });
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    root.querySelector('[data-back-diagnostic]')?.addEventListener('click', () => {
+      setView(quizComplete ? 'results' : 'quiz');
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    subscribeOpenContactForm((detail) => {
+      setView('form', detail);
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    subscribeOpenDiagnosticQuiz(() => {
+      setView(quizComplete ? 'results' : 'quiz');
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Hash / deep-link handling
+    const applyHash = () => {
+      const hash = window.location.hash;
+      if (hash === '#kontakt') {
+        setView('form', { preserveDiagnostic: true });
+      } else if (hash === '#diagnostic') {
+        setView(quizComplete ? 'results' : 'quiz');
+      }
+    };
+    window.addEventListener('hashchange', applyHash);
+    if (window.location.hash === '#kontakt') applyHash();
+
+    // External CTAs: [data-open-contact][data-tier]
+    document.addEventListener('click', (event) => {
+      const link = (event.target as Element | null)?.closest<HTMLAnchorElement>(
+        '[data-open-contact]',
+      );
+      if (!link) return;
+      event.preventDefault();
+      const tierAttr = link.dataset.tier as
+        | DiagnosticPayload['recommendedTier']
+        | undefined;
+      openContactForm({
+        tier: tierAttr ?? null,
+        preserveDiagnostic: Boolean(window.__DIAGNOSTIC_STATE__),
+      });
+    });
+
+    // Nav / in-page anchors for the unified container
+    document.querySelectorAll<HTMLAnchorElement>('a[href="#kontakt"]').forEach((a) => {
+      if (a.hasAttribute('data-open-contact')) return;
+      a.addEventListener('click', (event) => {
+        event.preventDefault();
+        openContactForm({
+          preserveDiagnostic: Boolean(window.__DIAGNOSTIC_STATE__),
+        });
+      });
+    });
+
+    document.querySelectorAll<HTMLAnchorElement>('a[href="#diagnostic"]').forEach((a) => {
+      a.addEventListener('click', (event) => {
+        event.preventDefault();
+        setView(quizComplete ? 'results' : 'quiz');
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    contactForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusEl.textContent = '';
+      statusEl.removeAttribute('data-state');
+      if (!contactForm.reportValidity()) return;
+
+      const fd = new FormData(contactForm);
+      const payload = {
+        name: String(fd.get('name') || '').trim(),
+        company: String(fd.get('company') || '').trim(),
+        contact: String(fd.get('contact') || '').trim(),
+        website: String(fd.get('website') || '').trim() || null,
+        notes: String(fd.get('notes') || '').trim(),
+        hosting: String(fd.get('hosting') || 'own'),
+        acceptGates: fd.get('acceptGates') === '1',
+        annualBleed: hiddenBleed.value ? Number(hiddenBleed.value) : null,
+        recommendedTier: hiddenTier.value || null,
+        bottleneckP: hiddenP.value ? Number(hiddenP.value) : null,
+        monthlyVisitors: hiddenV.value ? Number(hiddenV.value) : null,
+        aov: hiddenAov.value ? Number(hiddenAov.value) : null,
+      };
+
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Odesílám poptávku…';
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        statusEl.dataset.state = 'ok';
+        statusEl.textContent =
+          'Poptávka přijata. Ozveme se s\u00A0dalším krokem.';
+        contactForm.reset();
+        if (window.__DIAGNOSTIC_STATE__) {
+          applyBanner(window.__DIAGNOSTIC_STATE__, hiddenTier.value || null);
+        } else if (hiddenTier.value) {
+          applyBanner(null, hiddenTier.value);
+        } else {
+          badge.hidden = true;
+        }
+      } catch {
+        statusEl.dataset.state = 'err';
+        statusEl.textContent =
+          'Odeslání se nezdařilo. Zkuste to znovu, nebo napište přímo.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+        const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+        if (input) syncCatEye(el, input);
+      });
+    });
+
+    // Initial eye positions (results still hidden)
+    root.querySelectorAll<HTMLElement>('[data-cat-slider]').forEach((el) => {
+      const input = el.querySelector<HTMLInputElement>('input[type="range"]');
+      if (input) syncCatEye(el, input);
+    });
+  }
+
+  initBleedCalculator();
+  document.addEventListener('astro:page-load', initBleedCalculator);
+</script>

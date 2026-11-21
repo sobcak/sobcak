@@ -1,0 +1,531 @@
+---
+/**
+ * Commercial proof (#dukaz): modular portfolio showcase with
+ * framed site previews + app-themed PageSpeed cards, then
+ * Locked-Layout Editor narrative + interactive sandbox.
+ */
+import LockedEditorDemo from './LockedEditorDemo.astro';
+import {
+  pagespeedUrl,
+  portfolio,
+  ringPath,
+  scoreLabels,
+} from '../data/portfolio';
+---
+
+<section id="dukaz" class="proof page" aria-labelledby="dukaz-heading">
+  <header class="proof__header">
+    <p class="meta proof__meta">// 01 · DŮKAZ · REFERENCE</p>
+    <h2 id="dukaz-heading" class="proof__title">DŮKAZ</h2>
+    <p class="proof__lede">
+      Web, který se načte za&nbsp;0,8&nbsp;s. Mobilní zákazník neodejde
+      ke&nbsp;konkurenci – a&nbsp;napadení přes děravé pluginy nepřichází
+      v&nbsp;úvahu.
+    </p>
+  </header>
+
+  <div class="proof__portfolio" role="list">
+    {
+      portfolio.map((entry) => {
+        const headingId = `portfolio-${entry.id}`;
+        const psiHref = pagespeedUrl(entry.url);
+        return (
+          <article
+            class="proof__card"
+            role="listitem"
+            aria-labelledby={headingId}
+          >
+            <header class="proof__card-bar">
+              <p class="proof__card-bar-label" id={headingId}>
+                // NÁHLED · {entry.domain.toUpperCase()}
+              </p>
+              <a
+                class="proof__card-bar-link"
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                OTEVŘÍT WEB ↗
+              </a>
+            </header>
+
+            <a
+              class="proof__preview"
+              href={entry.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              <picture>
+                <source srcset={entry.previewWebp} type="image/webp" />
+                <img
+                  class="proof__preview-img"
+                  src={entry.previewJpg}
+                  alt=""
+                  width="1280"
+                  height="720"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            </a>
+
+            <div class="proof__card-body">
+              <div class="proof__summary">
+                {entry.summary.map((sentence) => (
+                  <p>{sentence}</p>
+                ))}
+              </div>
+
+              <div class="proof__psi" aria-label={`PageSpeed ${entry.domain}`}>
+                <div class="proof__psi-head">
+                  <h3 class="proof__psi-title">PageSpeed Insights</h3>
+                  <p class="meta">měřeno · laboratoř</p>
+                </div>
+
+                <ul class="proof__rings" role="list">
+                  {scoreLabels.map((m) => {
+                    const score = entry.scores[m.key];
+                    return (
+                      <li class="proof__ring">
+                        <svg
+                          class="proof__ring-svg"
+                          viewBox="0 0 88 88"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <circle
+                            class="proof__ring-track"
+                            cx="44"
+                            cy="44"
+                            r="36"
+                            fill="none"
+                            stroke-width="4"
+                          />
+                          <circle
+                            class="proof__ring-value"
+                            cx="44"
+                            cy="44"
+                            r="36"
+                            fill="none"
+                            stroke-width="4"
+                            stroke-dasharray={ringPath(score)}
+                            stroke-dashoffset="0"
+                            transform="rotate(-90 44 44)"
+                          />
+                          <text
+                            x="44"
+                            y="48"
+                            text-anchor="middle"
+                            class="proof__ring-score"
+                          >
+                            {score}
+                          </text>
+                        </svg>
+                        <span class="proof__ring-label">{m.label}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <dl class="proof__stats">
+                  <div class="proof__stat">
+                    <dt>Načtení</dt>
+                    <dd>{entry.loadTime}</dd>
+                  </div>
+                  <div class="proof__stat">
+                    <dt>Architektura</dt>
+                    <dd>{entry.architecture}</dd>
+                  </div>
+                </dl>
+
+                <a
+                  class="proof__verify"
+                  href={psiHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Ověřit živě v&nbsp;Google PageSpeed Insights ↗
+                </a>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <div class="proof__outcomes">
+    <blockquote class="proof__outcome">
+      <p>
+        Na&nbsp;design-home.cz: 100/100 v&nbsp;PageSpeed. Každá vteřina
+        zpoždění jinak žere rozpočet na&nbsp;reklamu – tady se návštěvník
+        dočká obsahu dřív, než stihne odejít.
+      </p>
+    </blockquote>
+    <blockquote class="proof__outcome">
+      <p>
+        Ceny, texty a&nbsp;aktuality upravíte v&nbsp;prohlížeči
+        za&nbsp;30&nbsp;vteřin. Vzhled a&nbsp;mobilní rozvržení jsou pevně
+        uzamčené v&nbsp;kódu – vy ani vaši zaměstnanci je omylem nerozbijete.
+      </p>
+    </blockquote>
+  </div>
+
+  <article class="proof__model" aria-labelledby="locked-model-heading">
+    <p class="meta">// BEZ DATABÁZE · UZAMČENÝ EDITOR ROZVRŽENÍ</p>
+    <h3 id="locked-model-heading" class="proof__model-title">
+      Uzamčený editor rozvržení
+    </h3>
+    <p class="proof__model-copy">
+      Obsah firmy žije v&nbsp;neměnném Git úložišti (<code>content.json</code>).
+      Úpravy v&nbsp;<code>/admin</code> – včetně automatické komprese obrázků
+      do&nbsp;WebP – spustí edge funkci, která do&nbsp;45&nbsp;s sestaví čisté
+      statické HTML. Žádná SQL databáze. Žádné WordPress pluginy. Součástí je
+      100% vlastnictví zdrojového kódu jako <code>.zip</code>.
+    </p>
+    <ul class="proof__model-points" role="list">
+      <li>0 databází · 0 pluginů · 0 runtime PHP – nulová plocha k&nbsp;útoku</li>
+      <li>Rozvržení uzamčené ve schématu: mřížku a&nbsp;typografii nelze rozbít</li>
+      <li>Každý commit zachová rychlost 90+ a&nbsp;čitelnost pro vyhledávače</li>
+    </ul>
+  </article>
+
+  <div class="proof__demo">
+    <p class="meta proof__demo-meta">// SANDBOX · INTERAKTIVNÍ UKÁZKA EDITORU</p>
+    <LockedEditorDemo />
+  </div>
+</section>
+
+<style>
+  .proof {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .proof__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: var(--measure);
+  }
+
+  .proof__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .proof__title {
+    letter-spacing: -0.03em;
+  }
+
+  .proof__lede {
+    font-size: var(--text-lg);
+    color: var(--color-fg);
+    line-height: 1.45;
+    max-width: 40rem;
+  }
+
+  .proof__portfolio {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .proof__card {
+    border: var(--border);
+    border-color: var(--color-accent);
+    background:
+      radial-gradient(
+        ellipse 70% 50% at 0% 0%,
+        rgba(212, 175, 55, 0.07),
+        transparent 55%
+      ),
+      var(--color-bg);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: clip;
+  }
+
+  .proof__card-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-block-end: var(--border);
+    border-color: #222;
+    background: #000;
+  }
+
+  .proof__card-bar-label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .proof__card-bar-link {
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    white-space: nowrap;
+  }
+
+  .proof__card-bar-link:hover,
+  .proof__card-bar-link:focus-visible {
+    color: var(--color-accent-hot);
+  }
+
+  .proof__preview {
+    display: block;
+    border-block-end: var(--border);
+    background: #0a0a0a;
+    text-decoration: none;
+  }
+
+  .proof__preview-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top center;
+    opacity: 0.92;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .proof__preview:hover .proof__preview-img,
+  .proof__preview:focus-visible .proof__preview-img {
+    opacity: 1;
+  }
+
+  .proof__card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .proof__summary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-width: 48rem;
+  }
+
+  .proof__summary p {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    color: var(--color-fg);
+  }
+
+  .proof__psi {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: var(--border);
+    background: #000;
+  }
+
+  .proof__psi-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .proof__psi-title {
+    font-size: var(--text-base);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .proof__rings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .proof__ring {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .proof__ring-svg {
+    width: clamp(4.25rem, 18vw, 5.5rem);
+    height: auto;
+  }
+
+  .proof__ring-track {
+    stroke: #222;
+  }
+
+  .proof__ring-value {
+    stroke: var(--color-accent);
+    stroke-linecap: butt;
+  }
+
+  .proof__ring-score {
+    fill: var(--color-fg);
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .proof__ring-label {
+    font-size: var(--text-xs);
+    color: var(--color-meta);
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  .proof__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+    border-block-start: var(--border);
+    padding-block-start: var(--space-3);
+  }
+
+  .proof__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .proof__stat dt {
+    font-size: var(--text-xs);
+    color: var(--color-meta);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .proof__stat dd {
+    font-size: var(--text-sm);
+    color: var(--color-accent-hot);
+    letter-spacing: 0.02em;
+  }
+
+  .proof__verify {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-meta);
+    border-block-end: 1px solid #333;
+    padding-block-end: 0.15rem;
+  }
+
+  .proof__verify:hover,
+  .proof__verify:focus-visible {
+    color: var(--color-accent-hot);
+    border-color: var(--color-accent);
+  }
+
+  .proof__outcomes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .proof__outcome {
+    margin: 0;
+    padding: var(--space-4);
+    border-inline-start: 2px solid var(--color-accent);
+    background: rgba(212, 175, 55, 0.03);
+  }
+
+  .proof__outcome p {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    max-width: 42rem;
+  }
+
+  .proof__model {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: var(--border);
+    max-width: 52rem;
+  }
+
+  .proof__model-title {
+    font-size: var(--text-xl);
+    letter-spacing: -0.02em;
+  }
+
+  .proof__model-copy {
+    color: var(--color-fg);
+    max-width: 48rem;
+  }
+
+  .proof__model-copy code {
+    color: var(--color-accent-hot);
+    font-size: 0.95em;
+  }
+
+  .proof__model-points {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-start: var(--space-1);
+  }
+
+  .proof__model-points li {
+    position: relative;
+    padding-inline-start: 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--color-meta);
+  }
+
+  .proof__model-points li::before {
+    content: '>';
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-accent);
+  }
+
+  .proof__demo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .proof__demo-meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .proof__rings {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .proof__outcomes {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .proof__ring-svg {
+      width: 5.75rem;
+    }
+  }
+
+</style>

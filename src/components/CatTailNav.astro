@@ -1,0 +1,590 @@
+---
+/**
+ * Pullable geometric cat-tail nav ("Alex" / Stray-inspired).
+ * pointerdown + Escape; full-screen #000 overlay; gold-igniting eyes.
+ */
+const links = [
+  {
+    id: '01',
+    label: 'DŮKAZ',
+    href: '#dukaz',
+    external: false,
+  },
+  {
+    id: '02',
+    label: 'DIAGNOSTIKA',
+    href: '#diagnostic',
+    external: false,
+  },
+  {
+    id: '03',
+    label: 'CENÍK',
+    href: '#cenik',
+    external: false,
+  },
+  {
+    id: '04',
+    label: 'PROCES',
+    href: '#proces',
+    external: false,
+  },
+  {
+    id: '05',
+    label: 'KONTAKT',
+    href: '#kontakt',
+    external: false,
+  },
+] as const;
+---
+
+<div class="cat-tail-nav" data-cat-tail-nav>
+  <button
+    type="button"
+    class="cat-tail-nav__trigger"
+    id="cat-tail-trigger"
+    aria-expanded="false"
+    aria-controls="cat-tail-overlay"
+    aria-label="Otevřít navigaci Alex"
+  >
+    <span class="cat-tail-nav__badge" aria-hidden="true">ALEX</span>
+    <svg
+      class="cat-tail-nav__tail"
+      viewBox="0 0 72 160"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <!-- Geometric Stray-style tail + corner frame -->
+      <path
+        class="cat-tail-nav__frame"
+        d="M8 8 H64 V28 H28 V52"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      />
+      <text
+        x="12"
+        y="22"
+        class="cat-tail-nav__ascii"
+        font-family="ui-monospace, monospace"
+        font-size="8"
+        fill="currentColor"
+        opacity="0.55">┌──┐</text>
+      <path
+        class="cat-tail-nav__curve"
+        d="M28 52
+           C 34 68, 50 74, 54 92
+           C 58 112, 42 124, 36 138
+           C 32 148, 38 154, 46 152"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="square"
+        stroke-linejoin="miter"
+      />
+      <path
+        class="cat-tail-nav__tip"
+        d="M46 152 L54 146 L50 156 Z"
+        fill="currentColor"
+      />
+      <text
+        x="40"
+        y="100"
+        class="cat-tail-nav__ascii"
+        font-family="ui-monospace, monospace"
+        font-size="7"
+        fill="currentColor"
+        opacity="0.45"
+        transform="rotate(18 40 100)">│││</text>
+    </svg>
+  </button>
+
+  <nav
+    class="cat-tail-nav__overlay"
+    id="cat-tail-overlay"
+    aria-hidden="true"
+    aria-label="Hlavní navigace"
+    inert
+  >
+    <div class="cat-tail-nav__panel">
+      <div class="cat-tail-nav__silhouette" aria-hidden="true">
+        <pre class="cat-tail-nav__ascii-cat">
+    /\___/\
+   (  o o  )_
+   /   ▽   \
+  /|  ___  |\
+ / | (   ) | \
+/  |  |||  |  \
+   |  |||  |
+   \  \_/  /
+    \_____/
+   looking back…
+        </pre>
+        <svg
+          class="cat-tail-nav__alex"
+          viewBox="0 0 280 320"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Alex — silueta kočky hledící přes rameno"
+        >
+          <!-- Back / shoulder mass -->
+          <path
+            d="M40 300
+               C 50 220, 70 150, 110 110
+               C 130 90, 155 78, 175 85
+               C 210 95, 235 130, 248 180
+               C 258 220, 255 270, 250 300
+               Z"
+            fill="#111"
+            stroke="#222"
+            stroke-width="1"
+          />
+          <!-- Head turned over shoulder -->
+          <path
+            d="M155 95
+               C 145 55, 165 28, 195 32
+               C 225 36, 245 60, 238 95
+               C 232 125, 200 135, 170 120
+               C 160 114, 155 105, 155 95
+               Z"
+            fill="#0a0a0a"
+            stroke="#333"
+            stroke-width="1"
+          />
+          <!-- Ears -->
+          <path d="M168 48 L175 18 L190 52 Z" fill="#0a0a0a" stroke="#333" />
+          <path d="M210 42 L230 14 L235 55 Z" fill="#0a0a0a" stroke="#333" />
+          <!-- Looking-back cheek / muzzle edge -->
+          <path
+            d="M200 100 C 215 108, 225 112, 228 100"
+            fill="none"
+            stroke="#222"
+            stroke-width="1"
+          />
+          <!-- Eyes — ignite gold when open -->
+          <g class="cat-tail-nav__eyes">
+            <ellipse
+              class="cat-tail-nav__eye cat-tail-nav__eye--l"
+              cx="188"
+              cy="72"
+              rx="7"
+              ry="5"
+              fill="#FFD700"
+            />
+            <ellipse
+              class="cat-tail-nav__eye cat-tail-nav__eye--r"
+              cx="214"
+              cy="70"
+              rx="7"
+              ry="5"
+              fill="#FFD700"
+            />
+            <ellipse cx="188" cy="72" rx="2" ry="4" fill="#000" />
+            <ellipse cx="214" cy="70" rx="2" ry="4" fill="#000" />
+          </g>
+          <!-- ASCII overlay strokes -->
+          <text
+            x="48"
+            y="250"
+            fill="#D4AF37"
+            fill-opacity="0.35"
+            font-family="ui-monospace, monospace"
+            font-size="10">▓▒░  ALEX  ░▒▓</text>
+        </svg>
+      </div>
+
+      <div class="cat-tail-nav__menu">
+        <p class="cat-tail-nav__menu-meta meta">// NAVIGACE · ONLINE</p>
+        <ul class="cat-tail-nav__list">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  class="cat-tail-nav__link"
+                  href={link.href}
+                  {...(link.external
+                    ? {
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                      }
+                    : {})}
+                >
+                  <span class="cat-tail-nav__index">{link.id}</span>
+                  <span class="cat-tail-nav__sep" aria-hidden="true">
+                    {' // '}
+                  </span>
+                  <span class="cat-tail-nav__label">{link.label}</span>
+                  {link.external && (
+                    <span class="cat-tail-nav__ext meta"> design-home.cz</span>
+                  )}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <button
+          type="button"
+          class="cat-tail-nav__close"
+          data-cat-tail-close
+          aria-label="Zavřít navigaci"
+        >
+          [ ESC · ZAVŘÍT ]
+        </button>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<script>
+  function initCatTailNav() {
+    const root = document.querySelector<HTMLElement>('[data-cat-tail-nav]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const trigger = root.querySelector<HTMLButtonElement>('#cat-tail-trigger');
+    const overlay = root.querySelector<HTMLElement>('#cat-tail-overlay');
+    const closeBtn = root.querySelector<HTMLButtonElement>('[data-cat-tail-close]');
+    if (!trigger || !overlay) return;
+
+    let open = false;
+    let lastFocus: HTMLElement | null = null;
+    const FADE_START = 24;
+    const FADE_END = 160;
+
+    const syncScrollFade = () => {
+      if (open) {
+        trigger.style.opacity = '1';
+        trigger.style.pointerEvents = 'auto';
+        root.classList.remove('is-scrolled');
+        return;
+      }
+
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      const t = Math.min(1, Math.max(0, (y - FADE_START) / (FADE_END - FADE_START)));
+      const opacity = 1 - t;
+      trigger.style.opacity = String(opacity);
+      const interactive = opacity > 0.15;
+      trigger.style.pointerEvents = interactive ? 'auto' : 'none';
+      root.classList.toggle('is-scrolled', !interactive);
+      if (!interactive) {
+        trigger.setAttribute('tabindex', '-1');
+        trigger.setAttribute('aria-hidden', 'true');
+      } else {
+        trigger.removeAttribute('tabindex');
+        trigger.removeAttribute('aria-hidden');
+      }
+    };
+
+    const setOpen = (next: boolean) => {
+      open = next;
+      trigger.setAttribute('aria-expanded', String(next));
+      overlay.setAttribute('aria-hidden', String(!next));
+      root.classList.toggle('is-open', next);
+      document.documentElement.classList.toggle('cat-nav-open', next);
+
+      if (next) {
+        overlay.removeAttribute('inert');
+        lastFocus = document.activeElement as HTMLElement | null;
+        // Defer past the triggering click so focus isn't stolen back by the button
+        requestAnimationFrame(() => {
+          const firstLink = overlay.querySelector<HTMLElement>('.cat-tail-nav__link');
+          (firstLink ?? closeBtn)?.focus();
+        });
+      } else {
+        overlay.setAttribute('inert', '');
+        syncScrollFade();
+        if (trigger.getAttribute('aria-hidden') !== 'true') {
+          (lastFocus ?? trigger).focus();
+        } else {
+          lastFocus?.focus();
+        }
+      }
+
+      syncScrollFade();
+    };
+
+    const toggle = () => setOpen(!open);
+    let pointerArmed = false;
+
+    trigger.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      if (trigger.style.pointerEvents === 'none') return;
+      pointerArmed = true;
+      toggle();
+    });
+
+    trigger.addEventListener('click', (event) => {
+      // pointerdown already toggled; keyboard Enter/Space still need click
+      if (pointerArmed) {
+        pointerArmed = false;
+        event.preventDefault();
+        return;
+      }
+      if (trigger.style.pointerEvents === 'none') return;
+      toggle();
+    });
+
+    closeBtn?.addEventListener('click', () => setOpen(false));
+
+    overlay.querySelectorAll<HTMLAnchorElement>('.cat-tail-nav__link').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (!link.target || link.target === '_self') setOpen(false);
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && open) {
+        event.preventDefault();
+        setOpen(false);
+      }
+    });
+
+    window.addEventListener('scroll', syncScrollFade, { passive: true });
+    syncScrollFade();
+  }
+
+  initCatTailNav();
+  document.addEventListener('astro:page-load', initCatTailNav);
+</script>
+
+<style is:global>
+  html.cat-nav-open {
+    overflow: hidden;
+  }
+</style>
+
+<style>
+  .cat-tail-nav {
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: none;
+  }
+
+  .cat-tail-nav__trigger {
+    pointer-events: auto;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: grid;
+    justify-items: end;
+    gap: 0.15rem;
+    padding: var(--space-2) var(--space-2) 0 0;
+    border: none;
+    background: transparent;
+    color: var(--color-accent);
+    width: clamp(4.5rem, 18vw, 5.5rem);
+    transition: opacity 180ms var(--ease-out);
+    will-change: opacity;
+  }
+
+  .cat-tail-nav.is-scrolled .cat-tail-nav__trigger {
+    pointer-events: none;
+  }
+
+  .cat-tail-nav__trigger:focus-visible {
+    outline: var(--border-active);
+    outline-offset: 2px;
+  }
+
+  .cat-tail-nav__badge {
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    color: var(--color-accent-hot);
+    opacity: 0.85;
+  }
+
+  .cat-tail-nav__tail {
+    width: 100%;
+    height: auto;
+    transform-origin: 40% 10%;
+    animation: tail-sway 4.5s var(--ease-out) infinite;
+    transition: color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  }
+
+  .cat-tail-nav__trigger:hover .cat-tail-nav__tail,
+  .cat-tail-nav__trigger[aria-expanded='true'] .cat-tail-nav__tail {
+    color: var(--color-accent-hot);
+    transform: translateY(0.35rem) rotate(4deg);
+  }
+
+  .cat-tail-nav__overlay {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: #000000;
+    transform: translateY(-100%);
+    transition: transform 0.7s var(--ease-out);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .cat-tail-nav.is-open .cat-tail-nav__overlay {
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .cat-tail-nav__panel {
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: var(--space-8) var(--page-pad) var(--space-6);
+    width: min(100% - 0px, var(--content-max));
+    margin-inline: auto;
+    align-items: center;
+  }
+
+  .cat-tail-nav__silhouette {
+    position: relative;
+    max-width: 18rem;
+    margin-inline: auto;
+  }
+
+  .cat-tail-nav__ascii-cat {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0;
+    margin: 0;
+    font-size: var(--text-xs);
+    line-height: 1.2;
+    color: #d4af37;
+    opacity: 0.28;
+    white-space: pre;
+    pointer-events: none;
+  }
+
+  .cat-tail-nav__alex {
+    width: min(100%, 17rem);
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .cat-tail-nav__eyes {
+    opacity: 0;
+    filter: drop-shadow(0 0 0 transparent);
+    transition:
+      opacity 0.55s var(--ease-out) 0.28s,
+      filter 0.55s var(--ease-out) 0.28s;
+  }
+
+  .cat-tail-nav.is-open .cat-tail-nav__eyes {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 22px rgba(255, 215, 0, 0.45));
+  }
+
+  .cat-tail-nav__menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .cat-tail-nav__menu-meta {
+    letter-spacing: 0.1em;
+  }
+
+  .cat-tail-nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    border-top: var(--border);
+  }
+
+  .cat-tail-nav__link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.35rem;
+    padding: var(--space-3) 0;
+    border-bottom: var(--border);
+    color: var(--color-fg);
+    text-decoration: none;
+    font-size: clamp(1rem, 0.9rem + 1.2vw, 1.35rem);
+    letter-spacing: 0.02em;
+    transition: color 0.25s var(--ease-out), padding-inline-start 0.25s var(--ease-out);
+  }
+
+  .cat-tail-nav__link:hover,
+  .cat-tail-nav__link:focus-visible {
+    color: var(--color-accent-hot);
+    padding-inline-start: var(--space-2);
+  }
+
+  .cat-tail-nav__index {
+    color: var(--color-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cat-tail-nav__sep {
+    color: var(--color-meta);
+  }
+
+  .cat-tail-nav__label {
+    text-transform: uppercase;
+  }
+
+  .cat-tail-nav__close {
+    align-self: flex-start;
+    margin-block-start: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border);
+    color: var(--color-meta);
+    font-size: var(--text-sm);
+    letter-spacing: 0.08em;
+  }
+
+  .cat-tail-nav__close:hover,
+  .cat-tail-nav__close:focus-visible {
+    color: var(--color-accent-hot);
+    border-color: var(--color-accent);
+  }
+
+  @keyframes tail-sway {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .cat-tail-nav__panel {
+      grid-template-columns: minmax(12rem, 0.9fr) minmax(0, 1.2fr);
+      gap: var(--space-8);
+      padding-block-start: var(--space-12);
+    }
+
+    .cat-tail-nav__silhouette {
+      margin-inline: 0;
+      max-width: 22rem;
+    }
+
+    .cat-tail-nav__alex {
+      width: min(100%, 20rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cat-tail-nav__tail,
+    .cat-tail-nav__overlay,
+    .cat-tail-nav__eyes,
+    .cat-tail-nav__link {
+      animation: none;
+      transition: none;
+    }
+
+    .cat-tail-nav__overlay {
+      transform: none;
+      opacity: 0;
+    }
+
+    .cat-tail-nav.is-open .cat-tail-nav__overlay {
+      opacity: 1;
+    }
+  }
+</style>

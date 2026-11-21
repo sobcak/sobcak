@@ -1,0 +1,374 @@
+---
+/**
+ * Television/monitor-style hero with ASCII bezel.
+ * Brand-first: SOBČÁK is the dominant signal;
+ * primary CTA → #diagnostic, secondary ghost → #dukaz.
+ */
+const ASCII_TOP = '╔' + '═'.repeat(46) + '╗';
+const ASCII_BOTTOM = '╚' + '═'.repeat(46) + '╝';
+const ASCII_SIDE = Array.from({ length: 24 }, () => '║').join('\n');
+const ASCII_SCAN = '░▒▓█▓▒░';
+---
+
+<header class="hero-frame" id="top" aria-labelledby="hero-brand">
+  <div class="hero-frame__bezel" aria-hidden="true">
+    <svg
+      class="hero-frame__ascii-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <pattern
+          id="ascii-bezel"
+          patternUnits="userSpaceOnUse"
+          width="12"
+          height="14"
+        >
+          <text
+            x="0"
+            y="11"
+            class="hero-frame__ascii-char"
+            font-family="var(--font-mono), monospace"
+            font-size="11"
+          >#</text>
+        </pattern>
+        <pattern
+          id="ascii-scan"
+          patternUnits="userSpaceOnUse"
+          width="48"
+          height="8"
+        >
+          <text
+            x="0"
+            y="7"
+            class="hero-frame__ascii-char"
+            font-family="var(--font-mono), monospace"
+            font-size="8"
+          >{ASCII_SCAN}</text>
+        </pattern>
+        <!-- Ring mask: ASCII only on the TV bezel, not the screen -->
+        <mask id="ascii-ring">
+          <rect width="100%" height="100%" fill="white" />
+          <rect
+            x="3%"
+            y="3%"
+            width="94%"
+            height="94%"
+            fill="black"
+          />
+        </mask>
+      </defs>
+      <rect
+        width="100%"
+        height="100%"
+        fill="url(#ascii-bezel)"
+        opacity="0.4"
+        mask="url(#ascii-ring)"
+      />
+      <rect
+        class="hero-frame__scan"
+        x="3%"
+        y="3%"
+        width="94%"
+        height="8"
+        fill="url(#ascii-scan)"
+        opacity="0.35"
+      />
+    </svg>
+
+    <div class="hero-frame__grid" aria-hidden="true">
+      <pre class="hero-frame__edge hero-frame__edge--top">{ASCII_TOP}</pre>
+      <pre class="hero-frame__edge hero-frame__edge--left">{ASCII_SIDE}</pre>
+      <pre class="hero-frame__edge hero-frame__edge--right">{ASCII_SIDE}</pre>
+      <pre class="hero-frame__edge hero-frame__edge--bottom">{ASCII_BOTTOM}</pre>
+    </div>
+  </div>
+
+  <div class="hero-frame__screen">
+    <p class="hero-frame__meta meta">// MONITOR_01 · BEROUNSKO &amp; PRAHA</p>
+    <h1 id="hero-brand" class="hero-frame__brand">SOBČÁK</h1>
+    <p class="hero-frame__lede">
+      Weby pro majitele firem z&nbsp;Berounska a&nbsp;Prahy. Načtení
+      za&nbsp;0,8&nbsp;s, pevná ochrana marže a&nbsp;návštěvníci, kteří se
+      mění v&nbsp;poptávky – ne v&nbsp;odchody ke konkurenci.
+    </p>
+    <div class="hero-frame__ctas">
+      <a class="hero-frame__cta" href="#diagnostic">
+        <span class="hero-frame__cta-label">SPOČÍTAT ROČNÍ ZTRÁTU</span>
+        <span class="hero-frame__cta-glyph" aria-hidden="true">↓</span>
+      </a>
+      <a class="hero-frame__cta hero-frame__cta--ghost" href="#dukaz">
+        <span class="hero-frame__cta-label">PROHLÉDNOUT REFERENCE</span>
+        <span class="hero-frame__cta-glyph" aria-hidden="true">↓</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hero-frame {
+    --bezel: clamp(0.75rem, 2.5vw, 1.5rem);
+    position: relative;
+    isolation: isolate;
+    min-height: 100dvh;
+    min-height: 100svh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    display: grid;
+    grid-template-columns:
+      var(--bezel)
+      minmax(0, 1fr)
+      var(--bezel);
+    grid-template-rows:
+      var(--bezel)
+      minmax(0, 1fr)
+      var(--bezel);
+    background: var(--color-bg);
+  }
+
+  .hero-frame__bezel {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-frame__ascii-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--color-accent);
+  }
+
+  .hero-frame__ascii-char {
+    fill: #d4af37;
+    fill-opacity: 0.4;
+  }
+
+  .hero-frame__scan {
+    animation: hero-scan 7s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  .hero-frame__grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: var(--bezel) minmax(0, 1fr) var(--bezel);
+    grid-template-rows: var(--bezel) minmax(0, 1fr) var(--bezel);
+    grid-template-areas:
+      'top top top'
+      'left screen right'
+      'bottom bottom bottom';
+    color: #d4af37;
+    opacity: 0.4;
+    font-family: var(--font-mono);
+    font-size: clamp(0.55rem, 1.6vw, 0.75rem);
+    line-height: 1;
+    overflow: hidden;
+  }
+
+  .hero-frame__edge {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .hero-frame__edge--top {
+    grid-area: top;
+    align-self: center;
+    padding-inline: 0.15em;
+  }
+
+  .hero-frame__edge--bottom {
+    grid-area: bottom;
+    align-self: center;
+    padding-inline: 0.15em;
+  }
+
+  .hero-frame__edge--left,
+  .hero-frame__edge--right {
+    justify-self: center;
+    align-self: stretch;
+    height: 100%;
+    overflow: hidden;
+    white-space: pre;
+    text-align: center;
+    line-height: 1.05;
+  }
+
+  .hero-frame__edge--left {
+    grid-area: left;
+  }
+
+  .hero-frame__edge--right {
+    grid-area: right;
+  }
+
+  .hero-frame__screen {
+    grid-column: 2;
+    grid-row: 2;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-4) clamp(0.5rem, 2vw, var(--space-6));
+    min-width: 0;
+    max-width: 100%;
+    border: var(--border);
+    background:
+      linear-gradient(
+        180deg,
+        rgba(212, 175, 55, 0.06) 0%,
+        transparent 28%,
+        transparent 100%
+      ),
+      var(--color-bg);
+    animation: hero-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hero-frame__meta {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-frame__brand {
+    font-size: clamp(2.75rem, 12vw + 0.5rem, 7.5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+    color: var(--color-fg);
+    word-break: break-word;
+    max-width: 100%;
+    text-wrap: balance;
+  }
+
+  .hero-frame__lede {
+    max-width: min(36rem, 100%);
+    font-size: var(--text-base);
+    color: var(--color-meta);
+    line-height: 1.5;
+  }
+
+  .hero-frame__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-2);
+    max-width: 100%;
+  }
+
+  .hero-frame__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-active);
+    color: var(--color-accent-hot);
+    background: transparent;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition:
+      color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-frame__cta:hover,
+  .hero-frame__cta:focus-visible {
+    color: var(--color-bg);
+    background: var(--color-accent-hot);
+    border-color: var(--color-accent-hot);
+  }
+
+  .hero-frame__cta--ghost {
+    border-color: #333333;
+    color: var(--color-fg);
+  }
+
+  .hero-frame__cta--ghost:hover,
+  .hero-frame__cta--ghost:focus-visible {
+    color: var(--color-accent-hot);
+    background: transparent;
+    border-color: var(--color-accent);
+  }
+
+  .hero-frame__cta-glyph {
+    display: inline-block;
+    animation: hero-cta-bounce 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes hero-scan {
+    0% {
+      transform: translateY(0);
+      opacity: 0.15;
+    }
+    40% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(calc(100dvh - var(--bezel) * 2));
+      opacity: 0.1;
+    }
+  }
+
+  @keyframes hero-cta-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(0.2rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-frame__screen,
+    .hero-frame__scan,
+    .hero-frame__cta-glyph {
+      animation: none;
+    }
+  }
+
+  /* Hard guard: no horizontal scroll on 320px */
+  @media (max-width: 360px) {
+    .hero-frame {
+      --bezel: 0.65rem;
+    }
+
+    .hero-frame__brand {
+      font-size: clamp(2.25rem, 18vw, 3.25rem);
+    }
+
+    .hero-frame__cta {
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-xs);
+    }
+
+    .hero-frame__ctas {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

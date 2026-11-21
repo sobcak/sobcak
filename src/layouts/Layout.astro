@@ -1,0 +1,108 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+}
+
+const SITE_URL = 'https://sobcak.cz';
+const SITE_NAME = 'sobcak.cz';
+const DEFAULT_TITLE =
+  'Tvorba webů a konverzní architektura Beroun a Praha — Oliver Sobčák';
+const DEFAULT_DESCRIPTION =
+  'Brutalistická B2B tvorba webů se zaměřením na konverzní architekturu. Berounsko & Praha. Statický Astro stack na Cloudflare Pages.';
+
+const {
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESCRIPTION,
+  canonicalPath = '/',
+  ogImage = `${SITE_URL}/og.png`,
+} = Astro.props;
+
+const canonicalURL = new URL(canonicalPath, SITE_URL).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: DEFAULT_TITLE,
+  alternateName: SITE_NAME,
+  url: SITE_URL,
+  description: DEFAULT_DESCRIPTION,
+  image: ogImage,
+  areaServed: [
+    { '@type': 'AdministrativeArea', name: 'Berounsko' },
+    { '@type': 'City', name: 'Praha' },
+    { '@type': 'Country', name: 'CZ' },
+  ],
+  provider: {
+    '@type': 'Person',
+    name: 'Oliver Sobčák',
+    url: SITE_URL,
+  },
+  serviceType: [
+    'Tvorba webů',
+    'Konverzní architektura',
+    'B2B web development',
+    'Cloudflare Pages hosting',
+  ],
+  priceRange: '$$',
+};
+---
+
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Oliver Sobčák" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Přeskočit na obsah</a>
+    <slot />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    inset-inline-start: var(--space-2);
+    inset-block-start: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-bg);
+    border: var(--border-active);
+    color: var(--color-accent-hot);
+    transform: translateY(-200%);
+    z-index: 100;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+</style>

@@ -1,0 +1,575 @@
+---
+/**
+ * Split-screen brutalist sandbox: Locked-Schema admin → live preview.
+ * Vanilla TS commit flow with 400ms terminal log animation.
+ */
+---
+
+<div class="locked-demo" data-locked-demo>
+  <div class="locked-demo__grid">
+    <aside class="locked-demo__panel locked-demo__panel--admin" aria-labelledby="locked-admin-heading">
+      <header class="locked-demo__panel-head">
+        <p class="locked-demo__panel-title" id="locked-admin-heading">
+          SPRÁVA OBSAHU // UZAMČENÉ SCHÉMA
+        </p>
+        <p class="meta locked-demo__panel-meta">content.json · neměnný Git</p>
+      </header>
+
+      <form class="locked-demo__form" data-locked-form>
+        <label class="locked-demo__field">
+          <span class="locked-demo__label">Nadpis nabídky</span>
+          <input
+            type="text"
+            name="headline"
+            data-locked-headline
+            value="Zakázková výroba kuchyní na klíč"
+            maxlength="80"
+            autocomplete="off"
+            required
+          />
+        </label>
+
+        <label class="locked-demo__field">
+          <span class="locked-demo__label">Cena zakázky v&nbsp;Kč</span>
+          <input
+            type="number"
+            name="price"
+            data-locked-price
+            value="89000"
+            min="0"
+            step="100"
+            inputmode="numeric"
+            required
+          />
+        </label>
+
+        <label class="locked-demo__field locked-demo__field--toggle">
+          <span class="locked-demo__label">Stav dostupnosti</span>
+          <button
+            type="button"
+            class="locked-demo__toggle"
+            data-locked-availability
+            role="switch"
+            aria-checked="true"
+            aria-label="Stav dostupnosti"
+          >
+            <span class="locked-demo__toggle-track" aria-hidden="true">
+              <span class="locked-demo__toggle-thumb"></span>
+            </span>
+            <span class="locked-demo__toggle-text" data-locked-availability-label>
+              PŘIJÍMÁME ZAKÁZKY
+            </span>
+          </button>
+        </label>
+
+        <button type="submit" class="locked-demo__commit" data-locked-commit>
+          [ ULOŽIT A&nbsp;ZVEŘEJNIT ]
+        </button>
+      </form>
+
+      <ul class="locked-demo__locks" aria-label="Uzamčené vrstvy rozvržení">
+        <li class="locked-demo__lock"><span>Mřížka rozvržení</span><span class="locked-demo__lock-state">UZAMČENO</span></li>
+        <li class="locked-demo__lock"><span>Mobilní typografie</span><span class="locked-demo__lock-state">UZAMČENO</span></li>
+        <li class="locked-demo__lock"><span>Garance rychlosti 90+</span><span class="locked-demo__lock-state">UZAMČENO</span></li>
+      </ul>
+    </aside>
+
+    <div class="locked-demo__panel locked-demo__panel--preview" aria-labelledby="locked-preview-heading">
+      <header class="locked-demo__panel-head">
+        <p class="locked-demo__panel-title" id="locked-preview-heading">
+          ŽIVÝ NÁHLED WEBU
+        </p>
+        <p class="meta locked-demo__panel-meta">statické HTML · edge nasazení</p>
+      </header>
+
+      <article class="locked-demo__preview" data-locked-preview aria-live="polite">
+        <p class="locked-demo__preview-eyebrow meta">// PRODUKCE · schéma design-home.cz</p>
+        <h3 class="locked-demo__preview-title" data-preview-headline>
+          Zakázková výroba kuchyní na klíč
+        </h3>
+        <p class="locked-demo__preview-price">
+          od <span data-preview-price>89&nbsp;000</span>&nbsp;Kč
+        </p>
+        <p
+          class="locked-demo__preview-status"
+          data-preview-status
+          data-available="true"
+        >
+          PŘIJÍMÁME ZAKÁZKY
+        </p>
+      </article>
+
+      <div
+        class="locked-demo__log"
+        data-locked-log
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
+        <p class="locked-demo__log-idle meta" data-locked-log-idle>
+          // čeká na uložení…
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type CommitState = {
+    headline: string;
+    price: number;
+    available: boolean;
+  };
+
+  const LOG_LINES = [
+    '> Kontrola schématu obsahu… v pořádku',
+    '> Zápis změn přes edge funkci… hotovo',
+    '> Statický web nasazen. Rychlost 90+ a čitelnost pro vyhledávače zachovány.',
+  ] as const;
+
+  const STEP_MS = 400;
+
+  function formatPrice(value: number): string {
+    return new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(
+      value,
+    );
+  }
+
+  function prefersReducedMotion(): boolean {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function initLockedEditorDemo() {
+    const root = document.querySelector<HTMLElement>('[data-locked-demo]');
+    if (!root || root.dataset.bound === '1') return;
+    root.dataset.bound = '1';
+
+    const form = root.querySelector<HTMLFormElement>('[data-locked-form]');
+    const headlineInput = root.querySelector<HTMLInputElement>('[data-locked-headline]');
+    const priceInput = root.querySelector<HTMLInputElement>('[data-locked-price]');
+    const availabilityBtn = root.querySelector<HTMLButtonElement>(
+      '[data-locked-availability]',
+    );
+    const availabilityLabel = root.querySelector<HTMLElement>(
+      '[data-locked-availability-label]',
+    );
+    const commitBtn = root.querySelector<HTMLButtonElement>('[data-locked-commit]');
+    const previewHeadline = root.querySelector<HTMLElement>('[data-preview-headline]');
+    const previewPrice = root.querySelector<HTMLElement>('[data-preview-price]');
+    const previewStatus = root.querySelector<HTMLElement>('[data-preview-status]');
+    const logEl = root.querySelector<HTMLElement>('[data-locked-log]');
+    const logIdle = root.querySelector<HTMLElement>('[data-locked-log-idle]');
+
+    if (
+      !form ||
+      !headlineInput ||
+      !priceInput ||
+      !availabilityBtn ||
+      !availabilityLabel ||
+      !commitBtn ||
+      !previewHeadline ||
+      !previewPrice ||
+      !previewStatus ||
+      !logEl
+    ) {
+      return;
+    }
+
+    let available = true;
+    let committing = false;
+    let logTimer: number | null = null;
+
+    const readState = (): CommitState => ({
+      headline: headlineInput.value.trim() || 'Nabídka bez názvu',
+      price: Math.max(0, Number(priceInput.value) || 0),
+      available,
+    });
+
+    const syncAvailabilityUi = () => {
+      availabilityBtn.setAttribute('aria-checked', available ? 'true' : 'false');
+      availabilityBtn.classList.toggle('is-off', !available);
+      availabilityLabel.textContent = available
+        ? 'PŘIJÍMÁME ZAKÁZKY'
+        : 'DOČASNĚ NEZVEŘEJNĚNO';
+    };
+
+    const applyPreview = (state: CommitState) => {
+      previewHeadline.textContent = state.headline;
+      previewPrice.textContent = formatPrice(state.price);
+      previewStatus.textContent = state.available
+        ? 'PŘIJÍMÁME ZAKÁZKY'
+        : 'DOČASNĚ NEZVEŘEJNĚNO';
+      previewStatus.dataset.available = state.available ? 'true' : 'false';
+    };
+
+    const clearLogTimers = () => {
+      if (logTimer !== null) {
+        window.clearTimeout(logTimer);
+        logTimer = null;
+      }
+    };
+
+    const runCommitLog = (onDone: () => void) => {
+      clearLogTimers();
+      logEl.replaceChildren();
+      if (logIdle) logIdle.hidden = true;
+
+      const delay = prefersReducedMotion() ? 0 : STEP_MS;
+      let i = 0;
+
+      const step = () => {
+        if (i >= LOG_LINES.length) {
+          onDone();
+          return;
+        }
+        const line = document.createElement('p');
+        line.className = 'locked-demo__log-line';
+        line.textContent = LOG_LINES[i];
+        logEl.appendChild(line);
+        i += 1;
+        if (i >= LOG_LINES.length) {
+          onDone();
+          return;
+        }
+        logTimer = window.setTimeout(step, delay);
+      };
+
+      step();
+    };
+
+    availabilityBtn.addEventListener('click', () => {
+      if (committing) return;
+      available = !available;
+      syncAvailabilityUi();
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (committing) return;
+
+      const state = readState();
+      committing = true;
+      commitBtn.disabled = true;
+      commitBtn.classList.add('is-busy');
+      root.classList.add('is-committing');
+
+      runCommitLog(() => {
+        applyPreview(state);
+        committing = false;
+        commitBtn.disabled = false;
+        commitBtn.classList.remove('is-busy');
+        root.classList.remove('is-committing');
+        root.classList.add('is-committed');
+      });
+    });
+
+    syncAvailabilityUi();
+    applyPreview(readState());
+  }
+
+  initLockedEditorDemo();
+  document.addEventListener('astro:page-load', initLockedEditorDemo);
+</script>
+
+<style>
+  .locked-demo {
+    border: var(--border);
+    background:
+      linear-gradient(
+        135deg,
+        rgba(212, 175, 55, 0.04) 0%,
+        transparent 42%,
+        transparent 100%
+      ),
+      var(--color-bg);
+  }
+
+  .locked-demo__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .locked-demo__panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    min-width: 0;
+  }
+
+  .locked-demo__panel--admin {
+    border-block-end: var(--border);
+  }
+
+  .locked-demo__panel--preview {
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .locked-demo__panel-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .locked-demo__panel-title {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .locked-demo__panel-meta {
+    letter-spacing: 0.04em;
+  }
+
+  .locked-demo__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .locked-demo__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .locked-demo__label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-meta);
+  }
+
+  .locked-demo__field input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border);
+    background: #050505;
+  }
+
+  .locked-demo__field input:focus-visible {
+    border: var(--border-active);
+    outline: none;
+  }
+
+  .locked-demo__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: fit-content;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border);
+    background: #050505;
+    transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo__toggle:hover,
+  .locked-demo__toggle:focus-visible {
+    border-color: var(--color-accent);
+  }
+
+  .locked-demo__toggle-track {
+    position: relative;
+    width: 2.5rem;
+    height: 1.1rem;
+    border: var(--border-active);
+    background: rgba(212, 175, 55, 0.2);
+    flex-shrink: 0;
+  }
+
+  .locked-demo__toggle-thumb {
+    position: absolute;
+    inset-block: 0.1rem;
+    inset-inline-start: 1.2rem;
+    width: 0.85rem;
+    background: var(--color-accent-hot);
+    transition: inset-inline-start 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo__toggle.is-off .locked-demo__toggle-track {
+    border-color: var(--color-border);
+    background: #111;
+  }
+
+  .locked-demo__toggle.is-off .locked-demo__toggle-thumb {
+    inset-inline-start: 0.15rem;
+    background: var(--color-meta);
+  }
+
+  .locked-demo__toggle-text {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    color: var(--color-accent-hot);
+  }
+
+  .locked-demo__toggle.is-off .locked-demo__toggle-text {
+    color: var(--color-meta);
+  }
+
+  .locked-demo__commit {
+    margin-block-start: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-active);
+    background: transparent;
+    color: var(--color-accent-hot);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-align: center;
+    transition:
+      color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo__commit:hover:not(:disabled),
+  .locked-demo__commit:focus-visible:not(:disabled) {
+    color: var(--color-bg);
+    background: var(--color-accent-hot);
+  }
+
+  .locked-demo__commit:disabled,
+  .locked-demo__commit.is-busy {
+    opacity: 0.55;
+    cursor: wait;
+  }
+
+  .locked-demo__locks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-block-start: auto;
+    padding-block-start: var(--space-3);
+    border-block-start: var(--border);
+  }
+
+  .locked-demo__lock {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--color-meta);
+  }
+
+  .locked-demo__lock-state {
+    color: var(--color-accent);
+    letter-spacing: 0.1em;
+  }
+
+  .locked-demo__preview {
+    border: var(--border-active);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background:
+      linear-gradient(
+        180deg,
+        rgba(212, 175, 55, 0.08) 0%,
+        transparent 55%
+      ),
+      #050505;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo.is-committing .locked-demo__preview {
+    opacity: 0.55;
+  }
+
+  .locked-demo.is-committed .locked-demo__preview {
+    animation: locked-preview-flash 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .locked-demo__preview-eyebrow {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .locked-demo__preview-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .locked-demo__preview-price {
+    font-size: var(--text-base);
+    color: var(--color-accent-hot);
+  }
+
+  .locked-demo__preview-status {
+    width: fit-content;
+    padding: var(--space-1) var(--space-2);
+    border: var(--border-active);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    color: var(--color-accent-hot);
+  }
+
+  .locked-demo__preview-status[data-available='false'] {
+    border-color: var(--color-border);
+    color: var(--color-meta);
+  }
+
+  .locked-demo__log {
+    min-height: 5.5rem;
+    padding: var(--space-3);
+    border: var(--border);
+    background: #030303;
+    font-size: var(--text-xs);
+    line-height: 1.6;
+    font-family: var(--font-mono);
+  }
+
+  .locked-demo__log-line {
+    color: var(--color-fg);
+    animation: locked-log-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .locked-demo__log-line:last-child {
+    color: var(--color-accent-hot);
+  }
+
+  @keyframes locked-log-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes locked-preview-flash {
+    0% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .locked-demo__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .locked-demo__panel--admin {
+      border-block-end: none;
+      border-inline-end: var(--border);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .locked-demo__log-line,
+    .locked-demo.is-committed .locked-demo__preview,
+    .locked-demo__toggle-thumb,
+    .locked-demo__commit,
+    .locked-demo__preview {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>

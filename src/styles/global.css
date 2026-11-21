@@ -1,0 +1,190 @@
+/* sobcak.cz — brutalist visual system */
+
+:root {
+  /* Color */
+  --color-bg: #000000;
+  --color-fg: #f5f5f5;
+  --color-meta: #888888;
+  --color-accent: #d4af37;
+  --color-accent-hot: #ffd700;
+  --color-loss: #ff4e42; /* client annual bleed only — nowhere else */
+  --color-border: #222222;
+
+  /* Geometry */
+  --radius: 0px;
+  --border-width: 1px;
+  --border: var(--border-width) solid var(--color-border);
+  --border-active: var(--border-width) solid var(--color-accent);
+
+  /* Type — fluid, mobile-first */
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: clamp(0.7rem, 0.65rem + 0.2vw, 0.8rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.95rem);
+  --text-base: clamp(0.95rem, 0.9rem + 0.3vw, 1.125rem);
+  --text-lg: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+  --text-xl: clamp(1.4rem, 1.15rem + 1vw, 2rem);
+  --text-2xl: clamp(1.75rem, 1.35rem + 1.6vw, 2.75rem);
+  --text-display: clamp(2.25rem, 1.6rem + 2.8vw, 4.5rem);
+
+  /* Space */
+  --space-1: clamp(0.25rem, 0.2rem + 0.2vw, 0.35rem);
+  --space-2: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
+  --space-3: clamp(0.75rem, 0.6rem + 0.6vw, 1.1rem);
+  --space-4: clamp(1rem, 0.85rem + 0.8vw, 1.5rem);
+  --space-6: clamp(1.5rem, 1.2rem + 1.2vw, 2.5rem);
+  --space-8: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  --space-12: clamp(3rem, 2rem + 3vw, 5rem);
+
+  /* Layout */
+  --page-pad: clamp(1rem, 0.75rem + 2vw, 2rem);
+  --content-max: 72rem;
+  --measure: 65ch;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--radius);
+}
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--color-accent-hot);
+}
+
+:focus-visible {
+  outline: var(--border-active);
+  outline-offset: 2px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: var(--border);
+  border-radius: var(--radius);
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:active,
+input:active,
+textarea:active,
+select:active {
+  border: var(--border-active);
+}
+
+button {
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: var(--text-display);
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+p {
+  max-width: var(--measure);
+}
+
+.meta,
+time,
+small {
+  color: var(--color-meta);
+  font-size: var(--text-sm);
+}
+
+.surface {
+  border: var(--border);
+  background: var(--color-bg);
+}
+
+.surface--active {
+  border: var(--border-active);
+}
+
+.page {
+  width: min(100% - 2 * var(--page-pad), var(--content-max));
+  margin-inline: auto;
+  padding-block: var(--space-6);
+}
+
+/* Tablet+ */
+@media (min-width: 768px) {
+  :root {
+    --page-pad: clamp(1.5rem, 1rem + 2vw, 3rem);
+  }
+
+  body {
+    line-height: 1.6;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1200px) {
+  :root {
+    --content-max: 80rem;
+  }
+}

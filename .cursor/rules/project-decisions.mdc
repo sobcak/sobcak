@@ -1,0 +1,12 @@
+---
+description: Project decisions and cross-project behaviours — always apply
+alwaysApply: true
+---
+
+# Project context
+
+Before exploring or changing this repo, read:
+1. `.cursor/decisions/DECISIONS.md` — stack, commands, architecture decisions
+2. `/home/oliver/Nixos/dotfiles/cursor/general-behaviors.md` — cross-project behaviours
+
+Prefer decisions already recorded there over rediscovering the project.
