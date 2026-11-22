@@ -15,7 +15,7 @@
 - Inline spans: always use explicit `&nbsp;` around amount/tier spans so Astro/HTML never collapses “o1 080 000Kč” or “smluvnígarance”
 - Post-launch hosting: `0 Kč/měs.` (with period); lowercase after em-dashes (“po dokončení”, “web i uzamčený”)
 - Footer: “// Na architekturu dohlíží Oliver”; omit IČO until a real number exists
-- CatTailNav (ALEX): geometric/ASCII session-operator portrait; fades out on scroll with `pointer-events: none` so it never overlaps content; gold eyes track pointer in the open overlay (`prefers-reduced-motion`: eyes lit, pupils static)
+- CatTailNav (ALEX): overlay uses real Alex photo (`public/alex.jpg`) in a CRT/monitor bezel with scanlines; trigger is a mini Alex head + soft tail; fades out on scroll with `pointer-events: none` so it never overlaps content
 
 ## Experience model — Monitor Session
 - Mobile-first **session** metaphor: CRT boot → channel switcher (Alex) → diagnostic beats → recommendation theatre
@@ -49,7 +49,8 @@ npm run preview  # preview dist/
 - `src/styles/global.css`
 - `src/pages/index.astro`
 - `src/components/HeroFrame.astro` — ASCII TV bezel hero (`SOBČÁK` + primary CTA → `#diagnostic`, ghost → `#dukaz`)
-- `src/components/CatTailNav.astro` — Alex channel switcher (geometric/ASCII operator portrait, click / Esc; eyes track pointer)
+- `src/components/CatTailNav.astro` — Alex channel switcher (photo bezel + mini-head trigger; click / Esc)
+- `public/alex.jpg` — real Alex reference portrait for the nav overlay
 - `src/data/portfolio.ts` — modular `#dukaz` portfolio entries (domain, preview, PSI scores, vitals)
 - `src/components/ProofSection.astro` — `#dukaz` portfolio showcase (framed previews + themed PSI cards + locked-editor narrative)
 - `public/portfolio/` — client site preview screenshots (webp + jpg)
